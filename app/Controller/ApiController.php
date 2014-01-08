@@ -1,0 +1,174 @@
+<?php
+class ApiController extends AppController {
+	public $uses = array('User', 'Summoner');
+	public function user($username, $token)
+	{
+		if(!isset($username))
+			throw new Exception("You didn't give me the username");
+		if(!isset($token))
+			throw new Exception("You didn't give me the token");
+		
+		if(!$this->verifyUser($username, $token))
+			throw new Exception("That's not your token");
+
+		$user = $this->User->find('first', 
+			array(
+				'conditions' => array('TwitchUsername' => $username)
+			)
+		);
+		if(!isset($user['User']['ID']))
+			$json = $this->createUser($username, $token);
+		else
+		{
+			$json = Set::extract('/User/.', $user);
+			if($json[0]['TwitchToken'] != $token) 
+				$this->updateToken($username, $token);
+
+			$summoners = $this->Summoner->find('first', array('conditions' => array('User' => $json[0]['ID'])));
+			$summoners = Set::extract('/Summoner/.', $summoners);
+			$json[0]['summoners'] = $summoners;
+		}
+
+        $this->renderJSON($json[0], true);
+	}
+
+	public function summoners($apikey, $value)
+	{
+		if(!isset($apikey))
+			throw new Exception("You didn't give me the api key");
+		if(!isset($value))
+			throw new Exception("You didn't give me the value");
+
+		$user = $this->getAPIKeyUser($apikey);
+		if(is_null($user))
+			throw new Exception("Unknown API Key");
+
+		//Remove the current summoners
+		$this->Summoner->deleteAll(array('User' => $user['ID']));
+
+		$splitSummoners = explode(',', $value);
+		$errors = array();
+		$save = array();
+		foreach($splitSummoners as $summoner)
+		{
+			//Cut that fat
+			$summoner = trim($summoner);
+			$lolUserID = $this->getSummonerID($summoner);
+			if($lolUserID != 0)
+				$save[] = array('User'=> $user['ID'], 'SummonerName' => $summoner, 'SummonerID' => $lolUserID);
+			else
+				$errors[] = $summoner;
+		}
+
+		$this->Summoner->saveMany($save);
+		if(count($errors)>0)
+			$this->renderJSON(array("error" => "Summoner names could not be found: ".implode(", ", $errors).". Summoner must be on the NA servers."), false);
+		else
+			$this->renderJSON(array("success" => true), true);
+	}
+
+	public function subscribers($username, $apikey, $limit = 25, $offset = 0)
+	{
+		if(!isset($username))
+			throw new Exception("You didn't give me the username");
+		if(!isset($apikey))
+			throw new Exception("You didn't give me the api key");
+
+		$user = $this->getAPIKeyUser($apikey);
+		if(!isset($user['ID']))
+			throw new Exception("Unknown api key");
+		if(strtolower($user['TwitchUsername']) != strtolower($username))
+			throw new Exception("That's not your api key");
+
+		try
+		{
+			if(isset($limit))
+				$results = $this->getURLContents("https://api.twitch.tv/kraken/channels/".$user['TwitchUsername']."/subscriptions?limit=25&offset=$offset&direction=desc&oauth_token=".$user['TwitchToken']);
+			else
+				$results = $this->getURLContents("https://api.twitch.tv/kraken/channels/".$user['TwitchUsername']."/subscriptions?limit=$limit&offset=$offset&direction=desc&oauth_token=".$user['TwitchToken']);
+		}
+		catch(Exception $e)
+		{
+			$this->renderJSON(array('error' => 'User is not a partner'), false);
+			return;
+		}
+			
+		$results = json_decode($results);
+		$return = array();
+		for($i=0;$i<count($results->subscriptions);$i++)
+		{
+			$current = $results->subscriptions[$i];
+			$return["aaData"][]=array('<a href="'.$current->_links->self.'">'.$current->user->display_name.'</a>', 
+				str_replace(array("T", "Z"), " ", $current->created_at));
+		}
+		//$return = array('total' => $results->_total);
+		$this->renderJSON($return, true);
+	}
+
+	private function getSummonerID($username)
+	{
+		$crl = curl_init();
+		$header = array("X-Mashape-Authorization: " . Configure::read('Mashape.Auth'));
+
+		curl_setopt($crl, CURLOPT_URL, 'https://community-league-of-legends.p.mashape.com/api/v1.0/NA/summoner/getSummonerByName/'.$username);
+		curl_setopt($crl, CURLOPT_HTTPHEADER, $header);
+		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+
+		$file = curl_exec($crl);
+		curl_close($crl);
+		if(!isset($file))
+			return 0;
+		$json = json_decode($file);
+		return $json->summonerId;
+	}
+
+	private function updateToken($username, $token)
+	{
+		$update = $this->User->updateAll(array('TwitchToken' => "'$token'"), array('TwitchUsername' => "$username"));
+	}
+
+	private function createUser($username, $token)
+	{
+		$newUser = array('APIKey' => uniqid('', true), 'TwitchUsername' => $username, 'TwitchToken' => $token);
+		$this->User->save($newUser);
+		return array($newUser);
+	}
+
+	private function verifyUser($username, $token)
+	{
+		$json = json_decode($this->getURLContents('https://api.twitch.tv/kraken/user?oauth_token='.$token));
+		return (strtolower($username) == strtolower($json->name));
+	}
+
+	private function getAPIKeyUser($apikey)
+	{
+		$user = $this->User->find('first', array('conditions' => array('APIKey' => $apikey)));
+		$user = Set::extract('/User/.', $user);
+		if(isset($user[0]))
+			return $user[0];
+		else return NULL;
+	}
+
+	private function getURLContents($url)
+	{
+		$ch = curl_init();
+		curl_setopt ($ch, CURLOPT_URL, $url);
+		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 5);
+		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
+		$contents = curl_exec($ch);
+		if (curl_errno($ch))
+		  $contents = '';
+		else
+		  curl_close($ch);
+
+		return $contents;
+	}
+
+	private function renderJSON($json, $success)
+	{
+		$this->autoLayout = false; 
+		$json['success'] = $success;
+		$this->set(compact('json'));
+        $this->render(JSON);	
+	}
+}
