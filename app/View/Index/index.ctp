@@ -37,7 +37,10 @@
 		<div class="col-md-8 column">
 			<h2>Set Up</h2>
 			<p class="well">
-				This is where you get told where to set shit up
+				It's very easy to set up LoLAlerter! It's two easy steps:<br/><br/>
+				1. Add each of your summoner names to the "LoL Summoner Names" box on the left.<br/>
+				2. On each of the accounts, add the bot to your friends list.<br/><br/>
+				The username of the bot is "LoLAlerter" - on the NA server.
 			</p>
 			<h2>Subscribers</h2>
 

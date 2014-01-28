@@ -34,6 +34,9 @@ section {
 	padding-top: 5px;
 	margin-bottom: -5px;
 }
+footer {
+	font-size: 10px;
+}
 .loggedIn {
 	display: none;
 }
@@ -77,6 +80,12 @@ section {
 		</section>
 		<?php echo $this->Session->flash(); ?>
 		<?php echo $this->fetch('content'); ?>
+	</div>
+	<div class="container">
+		<hr/>
+		<footer>
+			&copy; Created by <a href="http://softcode.co/">Redback93</a>
+		</footer>
 	</div>
 	<?php echo $this->element('sql_dump'); ?>
 </body>
@@ -125,8 +134,8 @@ $(document).ready(function() {
 					$("#settingsTwitchUsername").val(data.TwitchUsername);
 					$("#settingsLoLUsername").val(data.LoLUsername);
 
-					$.getJSON('/api/subscribers/'+data.TwitchUsername+'/'+LoLAlert.userData.apikey + '/1', function(data) {
-						if(data.success == true)
+					$.getJSON('/api/subscribers/'+data.TwitchUsername+'/'+LoLAlert.userData.apikey + '/1', function(tabledata) {
+						if(tabledata.success == true)
 						{
 							$(".dataTable").dataTable( {
 								"bProcessing": true,
@@ -186,7 +195,7 @@ $(document).ready(function() {
 				if(error)
 				{
 					LoLAlert.alert('danger', 'Error', 'You need to be a partner to use this feature')
-					//return;
+					return;
 				}
 				Twitch.api({method: 'user'}, function(error, user) {
 					if(error) return;

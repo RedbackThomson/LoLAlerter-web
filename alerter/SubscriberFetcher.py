@@ -23,10 +23,7 @@ class SubscriberFetcher:
 		while(self.alive):
 			time.sleep(5)
 			current_sub = self._getLatestSubscriber()
-			if(current_sub is None):
-				self._throwError('Error getting info for: ' + self.twitch_username)
-				AlerterLogger.logger.error('Error getting info for: ' + self.twitch_username)
-			else:
+			if(current_sub is not None):
 				current_id = current_sub['_id']
 				if(self.last_sub == 0):
 					self.last_sub = current_id
@@ -36,9 +33,7 @@ class SubscriberFetcher:
 						self.newsub_callback(current_sub['display_name'])
 
 	def _getLatestSubscriber(self):
-		#Change it so it's not Mylixia
-		#url = self.SUB_LOCATION.format(self.twitch_username, 1, self.token)
-		url = self.SUB_LOCATION.format('Nightblue3', 1, '3d6upau5a7oq7znl2vjaan20f3mmpk3')
+		url = self.SUB_LOCATION.format(self.twitch_username, 1, self.token)
 		try:
 			response = urllib2.urlopen(url)
 			json = response.read()

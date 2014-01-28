@@ -1,3 +1,9 @@
+#!/usr/bin/python
+
+import threading
+import os
+import inspect
+
 from AlerterUser import AlerterUser
 from AlerterLogger import AlerterLogger
 from LoLChat import LoLChat
@@ -31,6 +37,7 @@ class LoLAlerter:
 			##Chat might have reset - no need to restart the whole thread service
 			self.current_alerts[user[2]].summoner_id = summoner_id
 		else:
+			print '[LoLAlerter] User Online: ' + str(user[2]) + '@' + str(summoner_id)
 			AlerterLogger.logger.info('User Online: ' + str(user[2]) + '@' + str(summoner_id))
 			self.current_alerts[user[2]] = AlerterUser(self.SendNewSub, user[2], summoner_id, user[3])
 			self.current_alerts[user[2]].Start()
@@ -40,6 +47,7 @@ class LoLAlerter:
 		user = self.loldb.GetUserBySummonerId(summoner_id)
 		if(user == None): return
 
+		print '[LoLAlerter] User Offline: ' + str(user[2]) + '@' + str(summoner_id)
 		AlerterLogger.logger.info('User Offline: ' + str(user[2]) + '@' + str(summoner_id))
 		if(user[2] in self.current_alerts): self.current_alerts[user[2]].Stop()
 
@@ -48,9 +56,33 @@ class LoLAlerter:
 
 	def SendNewSub(self, target, new_sub):
 		"""Send new sub message"""
+		print '[LoLAlerter] Sending {} to {}'.format(new_sub, target)
 		AlerterLogger.logger.info('Sending {} to {}'.format(new_sub, target))
 		message = '{} has just subscribed!'.format(new_sub)
 		self.SendMessage(target, message)
 
-lolAlerter = LoLAlerter()
-lolAlerter.Start()
+def checkPidRunning(pid):        
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
+
+def writePID():
+	pid = str(os.getpid())
+	pidpath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) # script directory
+	pidfile = os.path.join(pidpath, 'tmp_alerter.pid')
+
+	if os.path.isfile(pidfile) and checkPidRunning(int(file(pidfile,'r').readlines()[0])):
+		print "%s already exists, exiting" % pidfile
+		sys.exit()
+	else:
+		file(pidfile, 'w').write(pid)
+
+#Entry Point
+if __name__ == '__main__':
+	writePID()
+
+	lolAlerter = LoLAlerter()
+	lolAlerter.Start()
