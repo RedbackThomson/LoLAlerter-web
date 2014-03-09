@@ -59,6 +59,7 @@ class LoLChat(ClientXMPP):
 	def _presence_subscribe(self, presence):
 		requestor = self._getSummonerId(str(presence['from']))
 		toAccept = self.lolalerter.loldb.CheckUserExists(requestor)
+		print '[LoLAlerter] Friendship Requested: ' + str(requestor) + ' : ' + str(toAccept)
 		AlerterLogger.logger.info('Friendship Requested: ' + str(requestor) + ' : ' + str(toAccept))
 		if(toAccept):
 			self.sendPresence(pto=presence['from'], ptype='subscribed')

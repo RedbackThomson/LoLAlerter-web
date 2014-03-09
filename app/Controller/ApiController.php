@@ -107,19 +107,11 @@ class ApiController extends AppController {
 
 	private function getSummonerID($username)
 	{
-		$crl = curl_init();
-		$header = array("X-Mashape-Authorization: " . Configure::read('Mashape.Auth'));
-
-		curl_setopt($crl, CURLOPT_URL, 'https://community-league-of-legends.p.mashape.com/api/v1.0/NA/summoner/getSummonerByName/'.$username);
-		curl_setopt($crl, CURLOPT_HTTPHEADER, $header);
-		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
-
-		$file = curl_exec($crl);
-		curl_close($crl);
-		if(!isset($file))
-			return 0;
-		$json = json_decode($file);
-		return $json->summonerId;
+		$key = Configure::read('RiotAPI.Key');
+		$url = "https://prod.api.pvp.net/api/lol/na/v1.3/summoner/by-name/$username?api_key=" .
+		       $key;
+		$json = json_decode(file_get_contents($url), true);
+		return $json[strtolower($username)]['id'];
 	}
 
 	private function updateToken($username, $token)

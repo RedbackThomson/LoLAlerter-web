@@ -39,6 +39,7 @@ class SubscriberFetcher:
 			json = response.read()
 			return self._parseLatestSubscriber(json)
 		except Exception, e:
+			print "Error (%s): %s" % self.twitch_username, e
 			return None
 
 	def _parseLatestSubscriber(self, jsonData):

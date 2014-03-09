@@ -20,3 +20,11 @@ Icon?
 ehthumbs.db
 Thumbs.db
 *.pyc
+alerter/Backup/
+README.md
+app/Test/Case/Controller/Component/empty
+app/Test/Case/Model/Behavior/empty
+app/Test/Case/View/Helper/empty
+app/Test/Fixture/empty
+alerter/LoLAlerter.log
+alerter/log/

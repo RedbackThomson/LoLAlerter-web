@@ -124,6 +124,6 @@ define("JSON", '/Elements/json');
 	Configure::write('LoLAlert.ClientID', '6fnqklj9p5y1im0xnjlj3s2hq1abuxo');
 	Configure::write('LoLAlert.ClientSecret', 'nqor34sf0vmpl4ypcuue94oum9dzmic');
 
-	Configure::write('Mashape.Auth', '90MJ9pHQUjVHMpOb9HXvQgwvwYvbIpI2');
+	Configure::write('RiotAPI.Key', '354d9d91-074b-4ab5-ad30-e9da37f2a7ee');
 
 	Configure::write('Website.Admin', 'UffKU8TKtie9ZwkbPNCS');

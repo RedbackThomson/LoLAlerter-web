@@ -192,10 +192,11 @@ $(document).ready(function() {
 
 		if (status.authenticated) {
 			Twitch.api({method: 'subscriptions'}, function(error, user) {
+				//alert(error);
 				if(error)
 				{
 					LoLAlert.alert('danger', 'Error', 'You need to be a partner to use this feature')
-					return;
+					//return;
 				}
 				Twitch.api({method: 'user'}, function(error, user) {
 					if(error) return;

@@ -33,12 +33,12 @@ class LoLAlerter:
 		user = self.loldb.GetUserBySummonerId(summoner_id)
 		if(user == None): return
 
+		print '[LoLAlerter] User Online: ' + str(user[2]) + '@' + str(summoner_id)
+		AlerterLogger.logger.info('User Online: ' + str(user[2]) + '@' + str(summoner_id))
 		if(user[2] in self.current_alerts): 
 			##Chat might have reset - no need to restart the whole thread service
 			self.current_alerts[user[2]].summoner_id = summoner_id
 		else:
-			print '[LoLAlerter] User Online: ' + str(user[2]) + '@' + str(summoner_id)
-			AlerterLogger.logger.info('User Online: ' + str(user[2]) + '@' + str(summoner_id))
 			self.current_alerts[user[2]] = AlerterUser(self.SendNewSub, user[2], summoner_id, user[3])
 			self.current_alerts[user[2]].Start()
 
