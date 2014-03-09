@@ -49,7 +49,9 @@ class LoLAlerter:
 
 		print '[LoLAlerter] User Offline: ' + str(user[2]) + '@' + str(summoner_id)
 		AlerterLogger.logger.info('User Offline: ' + str(user[2]) + '@' + str(summoner_id))
-		if(user[2] in self.current_alerts): self.current_alerts[user[2]].Stop()
+		if(user[2] in self.current_alerts): 
+			self.current_alerts[user[2]].Stop()
+			del self.current_alerts[user[2]]
 
 	def SendMessage(self, target, message):
 		self.lolchat.SendMessage(target, message)
