@@ -18,5 +18,5 @@ class LoLDB:
 
 	def GetUserBySummonerId(self, summoner_id):
 		cursor = self.conn.cursor()
-		cursor.execute("SELECT * FROM `users` WHERE `ID`= (SELECT `User` FROM `summoners` WHERE `SummonerID`= "+summoner_id+");")
+		cursor.execute("SELECT * FROM `users` WHERE `ID`= (SELECT `User` FROM `summoners` WHERE `SummonerID`= "+str(summoner_id)+");")
 		return cursor.fetchone()

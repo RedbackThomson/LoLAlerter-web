@@ -28,3 +28,4 @@ app/Test/Case/View/Helper/empty
 app/Test/Fixture/empty
 alerter/LoLAlerter.log
 alerter/log/
+alerter/tmp_alerter.pid
