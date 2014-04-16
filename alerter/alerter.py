@@ -29,18 +29,21 @@ class LoLAlerter:
 		print '[LoLAlerter] Stopped'
 
 	def NewUser(self, summoner_id):
+		AlerterLogger.logger.info('New user called')
 		if(summoner_id == self.lol_id): return
 		user = self.loldb.GetUserBySummonerId(summoner_id)
+		AlerterLogger.logger.info('Received user from summoner_id: ' + user)
 		if(user == None): return
 
 		print '[LoLAlerter] User Online: ' + str(user[2]) + '@' + str(summoner_id)
 		AlerterLogger.logger.info('User Online: ' + str(user[2]) + '@' + str(summoner_id))
 		if(user[2] in self.current_alerts): 
 			##Chat might have reset - no need to restart the whole thread service
-			self.current_alerts[user[2]].summoner_id = summoner_id
-		else:
-			self.current_alerts[user[2]] = AlerterUser(self.SendNewSub, user[2], summoner_id, user[3])
-			self.current_alerts[user[2]].Start()
+			self.current_alerts[user[2]].Stop()
+			del self.current_alerts[user[2]]
+
+		self.current_alerts[user[2]] = AlerterUser(self.SendNewSub, user[2], summoner_id, user[3])
+		self.current_alerts[user[2]].Start()
 
 	def UserOff(self, summoner_id):
 		if(summoner_id == self.lol_id): return

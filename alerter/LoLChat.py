@@ -49,7 +49,9 @@ class LoLChat(ClientXMPP):
 	def _got_online(self, presence):
 		AlerterLogger.logger.info('Friend Online: ' + str(presence['from']))
 		newUser = self._getSummonerId(str(presence['from']))
+		AlerterLogger.logger.info('New user call started')
 		self.lolalerter.NewUser(newUser)
+		AlerterLogger.logger.info('New user call finished')
 
 	def _got_offline(self, presence):
 		AlerterLogger.logger.info('Friend Offline: ' + str(presence['from']))
