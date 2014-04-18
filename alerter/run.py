@@ -17,14 +17,13 @@ def isRunning(process):
 
 def startProcess():
 	print str(datetime.now()) + ' Starting a new instance...'
-	os.system('python alerter.py')
+	os.system('python alerter.py &')
 
 if __name__ == '__main__':
 	while (True):
 		try:
-			f = open(pidfile, 'r')
-			pid = f.read()
-			f.close()
+			with open(pidfile, 'r') as f:
+				pid = f.read()
 
 			if(not isRunning(pid)):
 				startProcess()

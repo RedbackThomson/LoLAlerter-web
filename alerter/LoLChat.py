@@ -42,16 +42,14 @@ class LoLChat(ClientXMPP):
 	def _message(self, msg):
 		if msg['type'] in ('chat', 'normal'):
 			AlerterLogger.logger.info('Recieved message ('+str(msg['from'])+'): ' + str(msg['body']))
-			msgResponse = self._processMessage(str(msg['body']))
+			msgResponse = self._processMessage(str(msg['body']), self._getSummonerId(str(msg['from'])))
 			if(msgResponse is not None):
 				msg.reply(msgResponse).send()
 
 	def _got_online(self, presence):
 		AlerterLogger.logger.info('Friend Online: ' + str(presence['from']))
 		newUser = self._getSummonerId(str(presence['from']))
-		AlerterLogger.logger.info('New user call started')
 		self.lolalerter.NewUser(newUser)
-		AlerterLogger.logger.info('New user call finished')
 
 	def _got_offline(self, presence):
 		AlerterLogger.logger.info('Friend Offline: ' + str(presence['from']))
@@ -82,7 +80,7 @@ class LoLChat(ClientXMPP):
 		'<rankedRating>0</rankedRating><statusMsg>'+message+\
 		'</statusMsg><gameStatus>outOfGame</gameStatus><tier>PLATINUM</tier></body>'
 
-	def _processMessage(self, message_body):
+	def _processMessage(self, message_body, sender):
 		firstChar = message_body[0]
 
 		if(firstChar is '!'):
@@ -90,3 +88,9 @@ class LoLChat(ClientXMPP):
 			split = message_body[1:].split(' ')
 			if(split[0].lower() == 'hello'):
 				return 'Hi!'
+			elif (split[0].lower() == 'info'):
+				return 'This is the LoLAlerter bot run by Redback93 (or Intercontinent).'+\
+				' For more information, visit http://LoLAlerter.softcode.co/'
+			elif split[0].lower() == 'message' and len(split) >= 3 and sender == "31186414":
+				newSplit = message_body[1:].split(' ', 2)
+				self.SendMessage(newSplit[1], newSplit[2])
