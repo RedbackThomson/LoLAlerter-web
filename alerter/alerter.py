@@ -67,6 +67,11 @@ class LoLAlerter:
 		message = '{} has just subscribed!'.format(new_sub)
 		self.SendMessage(target, message)
 
+	def Restart(self):
+		for alert in self.current_alerts:
+			alert.Stop()
+		self.current_alerts = dict()
+
 def checkPidRunning(pid):        
     try:
         os.kill(pid, 0)

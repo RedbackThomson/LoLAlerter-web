@@ -25,6 +25,7 @@ class LoLChat(ClientXMPP):
 		self.add_event_handler("got_offline", self._got_offline)
 		self.add_event_handler("presence_subscribe", self._presence_subscribe)
 		self.add_event_handler("presence_unsubscribe", self._presence_unsubscribe)
+		self.add_event_handler("disconnected", self._disconnected)
 
 	def Start(self):
 		address = (LoLChat.ADDRESS, LoLChat.ADDRESS_PORT)
@@ -71,8 +72,11 @@ class LoLChat(ClientXMPP):
 	def _presence_unsubscribe(self, presence):
 		print 'unsubscribed: ' + str(presence['from'])
 
+	def _disconnected(self):
+		self.lolalerter.Restart()
+
 	def _getSummonerId(self, fromID):
-		return fromID.replace('@'+LoLChat.SERVER, '').replace('sum','').replace('/xiff', '')
+		return fromID.replace('@'+LoLChat.SERVER, '').replace('sum','').replace('/xiff', '').replace('/lolapp.me', '')
 
 	def _getPresenceString(self, message):
 		return '<body><profileIcon>668</profileIcon><level>1</level><wins>0</wins><leaves>0</leaves>'+\

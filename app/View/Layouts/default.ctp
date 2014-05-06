@@ -26,6 +26,7 @@
 		<?php echo $title_for_layout; ?>
 	</title>
 	<?php echo $this->Html->meta('icon', '/favicon.png'); ?>
+	<meta name="Description" content="A League of Legends in game chat bot which will alert the Twitch.tv user when a new user subscribes. The bot runs without any interaction once it is set up." />
 	<style type="text/css">
 body {
 	padding-top: 60px;
@@ -132,7 +133,7 @@ $(document).ready(function() {
 				if(data.success == true) { 
 					LoLAlert.userData.apikey = data.APIKey;
 					$("#settingsTwitchUsername").val(data.TwitchUsername);
-					$("#settingsLoLUsername").val(data.LoLUsername);
+					$("#settingsLoLUsername").val(LoLAlert.getSummonersList(data.summoners));
 
 					$.getJSON('/api/subscribers/'+data.TwitchUsername+'/'+LoLAlert.userData.apikey + '/1', function(tabledata) {
 						if(tabledata.success == true)
@@ -157,7 +158,16 @@ $(document).ready(function() {
 		},
 		updateTwitchUsername: function(username){
 			$("#navUsername").text('Logged in as '+username);
-		}
+		},
+		getSummonersList: function(summoners)
+		{
+			var retVal = "";
+			jQuery.each(summoners, function() {
+			  	retVal += this.SummonerName + ",";
+			});
+			retVal = retVal.substring(0, retVal.length - 1);
+			return retVal;
+		},
 	};
 	function ChangePanels(login)
 	{
@@ -195,7 +205,7 @@ $(document).ready(function() {
 				//alert(error);
 				if(error)
 				{
-					LoLAlert.alert('danger', 'Error', 'You need to be a partner to use this feature')
+					LoLAlert.alert('info', 'Info', 'You need to be a partner to use this feature')
 					//return;
 				}
 				Twitch.api({method: 'user'}, function(error, user) {
@@ -208,16 +218,20 @@ $(document).ready(function() {
 					LoLAlert.newUserData(user.display_name, status.token);
 
 					ChangePanels(true);
-
-					LoLAlert.alert('success','Congratulations!','You\'ve now joined the new beta for LoLAlert.');
 				}); 
 			});
 		}
-		else
-		{
-			LoLAlert.alert('info', 'Beta Information', 'This website is still under beta development.')
-		}
 	});
 });
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50560855-1', 'softcode.co');
+  ga('send', 'pageview');
+
 </script>
 </html>

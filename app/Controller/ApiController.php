@@ -54,7 +54,9 @@ class ApiController extends AppController {
 			//Cut that fat
 			$summoner = trim($summoner);
 			$lolUserID = $this->getSummonerID($summoner);
-			if($lolUserID != 0)
+			if($this->summonerAlreadyExists($lolUserID))
+				continue;
+			else if($lolUserID != 0)
 				$save[] = array('User'=> $user['ID'], 'SummonerName' => $summoner, 'SummonerID' => $lolUserID);
 			else
 				$errors[] = $summoner;
@@ -141,12 +143,19 @@ class ApiController extends AppController {
 		else return NULL;
 	}
 
+	private function summonerAlreadyExists($summonerID)
+	{
+		$exists = $this->Summoner->find('count', array('conditions' => array('SummonerID' => $summonerID)));
+		return ($exists === 1);
+	}
+	
 	private function getURLContents($url)
 	{
 		$ch = curl_init();
 		curl_setopt ($ch, CURLOPT_URL, $url);
 		curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, 5);
 		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt ($ch,CURLOPT_SSL_VERIFYPEER, false);
 		$contents = curl_exec($ch);
 		if (curl_errno($ch))
 		  $contents = '';
