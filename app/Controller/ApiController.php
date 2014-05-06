@@ -24,7 +24,7 @@ class ApiController extends AppController {
 			if($json[0]['TwitchToken'] != $token) 
 				$this->updateToken($username, $token);
 
-			$summoners = $this->Summoner->find('first', array('conditions' => array('User' => $json[0]['ID'])));
+			$summoners = $this->Summoner->find('all', array('conditions' => array('User' => $json[0]['ID'])));
 			$summoners = Set::extract('/Summoner/.', $summoners);
 			$json[0]['summoners'] = $summoners;
 		}
