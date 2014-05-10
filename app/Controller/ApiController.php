@@ -47,7 +47,8 @@ class ApiController extends AppController {
 		$this->Summoner->deleteAll(array('User' => $user['ID']));
 
 		$splitSummoners = explode(',', $value);
-		$errors = array();
+		$notFound = array();
+		$inUse = array();
 		$save = array();
 		foreach($splitSummoners as $summoner)
 		{
@@ -55,16 +56,23 @@ class ApiController extends AppController {
 			$summoner = trim($summoner);
 			$lolUserID = $this->getSummonerID($summoner);
 			if($this->summonerAlreadyExists($lolUserID))
-				continue;
+				$inUse[] = $summoner;
 			else if($lolUserID != 0)
 				$save[] = array('User'=> $user['ID'], 'SummonerName' => $summoner, 'SummonerID' => $lolUserID);
 			else
-				$errors[] = $summoner;
+				$notFound[] = $summoner;
 		}
 
 		$this->Summoner->saveMany($save);
-		if(count($errors)>0)
-			$this->renderJSON(array("error" => "Summoner names could not be found: ".implode(", ", $errors).". Summoner must be on the NA servers."), false);
+		if(count($notFound)>0 || count($inUse)>0)
+		{
+			$errorText = "Unable to update summoners.";
+			if(count($notFound)>0)
+				$errorText .= "<br/>Summoner names could not be found: ".implode(", ", $notFound).". Ensure summoner is on the NA server. ";
+			if(count($inUse)>0)
+				$errorText .= "<br/>The following summoners are registered under a different Twitch account: ".implode(", ", $inUse).".";
+			$this->renderJSON(array("error" => $errorText), false);
+		}
 		else
 			$this->renderJSON(array("success" => true), true);
 	}
