@@ -115,6 +115,32 @@ class ApiController extends AppController {
 		$this->renderJSON($return, true);
 	}
 
+	public function partner($username)
+	{
+		if(!isset($username))
+			throw new Exception("You didn't give me the username");
+			
+		//Hard coded in Redback93
+		if($username == "Redback93")
+		{
+			$this->renderJSON(array('partner'=>'true'), true);
+			return;
+		}
+			
+		try
+		{
+			$results = $this->getURLContents("https://api.twitch.tv/api/channels/".$username);
+			$json = json_decode($results, true);
+			$this->renderJSON(array('partner'=>$json['partner']), true);
+			return;
+		}
+		catch(Exception $e)
+		{
+			$this->renderJSON(array('partner'=>false), true);
+			return;
+		}
+	}
+	
 	private function getSummonerID($username)
 	{
 		$key = Configure::read('RiotAPI.Key');

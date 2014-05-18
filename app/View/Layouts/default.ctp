@@ -201,24 +201,22 @@ $(document).ready(function() {
 		});
 
 		if (status.authenticated) {
-			Twitch.api({method: 'subscriptions'}, function(error, user) {
-				//alert(error);
-				if(error)
-				{
-					LoLAlert.alert('info', 'Info', 'You need to be a partner to use this feature')
-					//return;
-				}
-				Twitch.api({method: 'user'}, function(error, user) {
-					if(error) return;
-					//Methods to be run after login
-					LoLAlert.updateTwitchUsername(user.display_name);
+			Twitch.api({method: 'user'}, function(error, user) {
+				$.getJSON('/api/partner/'+user.display_name, function(data) {
+					if(data.partner)
+					{
+						//Methods to be run after login
+						LoLAlert.updateTwitchUsername(user.display_name);
 
-					user.token = Twitch.getToken();
-					LoLAlert.userData = user;
-					LoLAlert.newUserData(user.display_name, status.token);
+						user.token = Twitch.getToken();
+						LoLAlert.userData = user;
+						LoLAlert.newUserData(user.display_name, status.token);
 
-					ChangePanels(true);
-				}); 
+						ChangePanels(true);
+					}
+					else
+						LoLAlert.alert('danger', 'Error', 'You must be a Twitch.tv partner to use this feature')
+				});
 			});
 		}
 	});
