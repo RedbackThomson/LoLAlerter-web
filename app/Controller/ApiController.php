@@ -118,10 +118,11 @@ class ApiController extends AppController {
 	private function getSummonerID($username)
 	{
 		$key = Configure::read('RiotAPI.Key');
-		$url = "https://prod.api.pvp.net/api/lol/na/v1.3/summoner/by-name/$username?api_key=" .
+		$username = str_replace(' ','',strtolower($username));
+		$url = "http://prod.api.pvp.net/api/lol/na/v1.3/summoner/by-name/$username?api_key=" .
 		       $key;
 		$json = json_decode(file_get_contents($url), true);
-		return $json[strtolower($username)]['id'];
+		return $json[$username]['id'];
 	}
 
 	private function updateToken($username, $token)
