@@ -20,6 +20,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<?php $start_time = microtime(true); ?>
 	<?php echo $this->Html->charset(); ?>
 	<title>
 		<?php echo 'LoL Alerter' ?> - 
@@ -36,7 +37,7 @@ section {
 	margin-bottom: -5px;
 }
 footer {
-	font-size: 10px;
+	font-size: 12px;
 }
 .loggedIn {
 	display: none;
@@ -85,7 +86,7 @@ footer {
 	<div class="container">
 		<hr/>
 		<footer>
-			&copy; Created by <a href="http://softcode.co/">Redback93</a>
+			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a>
 		</footer>
 	</div>
 	<?php echo $this->element('sql_dump'); ?>
