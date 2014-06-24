@@ -76,7 +76,7 @@ class LoLChat(ClientXMPP):
 		self.lolalerter.Restart()
 
 	def _getSummonerId(self, fromID):
-		return fromID.replace('@'+LoLChat.SERVER, '').replace('sum','').replace('/xiff', '').replace('/lolapp.me', '')
+		return fromID.replace('@'+LoLChat.SERVER, '').replace('sum','').replace('/xiff', '').replace('/lolapp.me', '').replace('/Smack', '')
 
 	def _getPresenceString(self, message):
 		return '<body><profileIcon>668</profileIcon><level>1</level><wins>0</wins><leaves>0</leaves>'+\
