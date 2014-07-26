@@ -92,7 +92,7 @@ footer {
 	<div class="container">
 		<hr/>
 		<footer>
-			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=redback93%40hotmail%2ecom&lc=GB&item_name=LoLAlerter Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted">Donate!</a>
+			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=lolalerter%40gmail%2ecom&lc=GB&item_name=LoLAlerter Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted">Donate!</a>
 		</footer>
 	</div>
 	<?php echo $this->element('sql_dump'); ?>
