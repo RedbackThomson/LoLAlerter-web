@@ -26,7 +26,10 @@
 		<?php echo 'LoL Alerter' ?> - 
 		<?php echo $title_for_layout; ?>
 	</title>
-	<?php echo $this->Html->meta('icon', '/favicon.png'); ?>
+	<?php 
+		echo $this->Html->meta('icon', '/favicon.png'); 
+		echo $this->Html->css('bootstrap.min');
+	?>
 	<meta name="Description" content="A League of Legends in game chat bot which will alert the Twitch.tv user when a new user subscribes. The bot runs without any interaction once it is set up." />
 	<style type="text/css">
 body {
@@ -59,6 +62,9 @@ footer {
 								<li>
 									<a href="#" class="twitch-disconnect">Logout</a>
 								</li>
+								<li>
+									<a href="#" data-toggle="modal" data-target=".support-modal">Support</a>
+								</li>
 							</ul>
 							<p class="navbar-text navbar-right loggedIn" id="navUsername"></p>
 							<ul class="nav navbar-nav navbar-right loggedOut" style="margin-top: 17px; display: list-item;">
@@ -86,14 +92,13 @@ footer {
 	<div class="container">
 		<hr/>
 		<footer>
-			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a>
+			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=redback93%40hotmail%2ecom&lc=GB&item_name=LoLAlerter Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted">Donate!</a>
 		</footer>
 	</div>
 	<?php echo $this->element('sql_dump'); ?>
 </body>
 <!-- Putting the scripts at the end, because that's pro -->
 <?php
-	echo $this->Html->css('bootstrap.min');
 	echo $this->Html->script('jquery.min');
 	echo $this->Html->script('bootstrap.min');
 	echo $this->Html->script('https://ttv-api.s3.amazonaws.com/twitch.min.js');
@@ -182,6 +187,16 @@ $(document).ready(function() {
 			$('.loggedOut').show();
 			$('.loggedIn').hide();
 		}
+	}
+	$('#supportForm').submit(function () 
+	{
+	    var name = $.trim($('#supportForm #inputUsername').val());
+	    var body = $.trim($('#supportForm #inputBody').val());
+	    return !(name == '' || body == '');
+	});
+	if(window.location.hash) {
+  		var hash = window.location.hash.substring(1);
+  		if(hash == 'support') LoLAlert.alert('success', 'Sent!', 'Your support message was sent. You should expect a reply to your Twitch.tv inbox within 24 hours.');
 	}
 	Twitch.init({clientId: '<?php echo Configure::read('LoLAlert.ClientID'); ?>'}, function(error, status) {
 		$('.twitch-connect').click(function() {
