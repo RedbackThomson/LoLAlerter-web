@@ -19,6 +19,6 @@ class IssueController extends AppController {
 			->viewVars(array('username' => $name, 'body' => $body, 'dateTime' => $dateTime))
 			->send();
 
-		return $this->redirect(array('controller' => '', 'action' => 'index', '?' = array('support')));
+		return $this->redirect(array('controller' => '', 'action' => 'index', '#' => 'support'));
 	}
 }
