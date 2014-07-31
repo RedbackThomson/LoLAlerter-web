@@ -145,7 +145,7 @@ class ApiController extends AppController {
 	{
 		$key = Configure::read('RiotAPI.Key');
 		$username = str_replace(' ','',strtolower($username));
-		$url = "http://prod.api.pvp.net/api/lol/na/v1.4/summoner/by-name/$username?api_key=" .
+		$url = "http://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/$username?api_key=" .
 		       $key;
 		$json = json_decode(file_get_contents($url), true);
 		return $json[$username]['id'];
