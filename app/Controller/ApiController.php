@@ -16,7 +16,7 @@ class ApiController extends AppController {
 				'conditions' => array('TwitchUsername' => $username)
 			)
 		);
-		if(!isset($user['User']['ID']))
+		if(!isset($user['User']['APIKey']))
 			$json = $this->createUser($username, $token);
 		else
 		{
@@ -167,6 +167,7 @@ class ApiController extends AppController {
 
 	private function createUser($username, $token)
 	{
+		$this->User->deleteAll(array('TwitchUsername' => $username));
 		$newUser = array('APIKey' => uniqid('', true), 'TwitchUsername' => $username, 'TwitchToken' => $token);
 		$this->User->save($newUser);
 		return array($newUser);
