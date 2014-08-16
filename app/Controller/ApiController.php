@@ -126,7 +126,16 @@ class ApiController extends AppController {
 			$this->renderJSON(array('partner'=>'true'), true);
 			return;
 		}
-			
+		
+		//Search for existing users
+		$exists = $this->User->find('count', array('conditions' => array('TwitchUsername' => $username)));
+		if($exists == 1)
+		{
+			$this->renderJSON(array('partner'=>'true'), true);
+			return;
+		}
+
+		//Search on Twitch API
 		try
 		{
 			$results = $this->getURLContents("https://api.twitch.tv/api/channels/".$username);

@@ -98,3 +98,5 @@ class LoLChat(ClientXMPP):
 			elif split[0].lower() == 'message' and len(split) >= 3 and sender == "31186414":
 				newSplit = message_body[1:].split(' ', 2)
 				self.SendMessage(newSplit[1], newSplit[2])
+		else:
+			self.SendMessage('31186414', sender + ': '+message_body)
