@@ -16,7 +16,7 @@ class ApiController extends AppController {
 				'conditions' => array('TwitchUsername' => $username)
 			)
 		);
-		if(!isset($user['User']['APIKey']))
+		if(!isset($user['User']['APIKey']) || $user['User']['APIKey'] == "")
 			$json = $this->createUser($username, $token);
 		else
 		{
