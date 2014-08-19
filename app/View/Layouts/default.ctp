@@ -92,8 +92,21 @@ footer {
 	<div class="container">
 		<hr/>
 		<footer>
-			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=lolalerter%40gmail%2ecom&lc=GB&item_name=LoLAlerter Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted" target="_new">Donate!</a>
+			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="#" id="donateButton">Donate!</a>
 		</footer>
+	</div>
+	<div class="modal fade" id="donateModal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">Donate to LoLAlerter</h4>
+				</div>
+				<div class="modal-body">
+					<iframe id="coinbase_inline_iframe_260aa53a8f19b98a77439aecc52f3a59" src="https://coinbase.com/inline_payments/260aa53a8f19b98a77439aecc52f3a59?c=LOLALERTERDONATION" style="width: 100%; height: 160px; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.25); overflow: hidden;" scrolling="no" allowtransparency="true" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
 	</div>
 	<?php echo $this->element('sql_dump'); ?>
 </body>
@@ -197,7 +210,11 @@ $(document).ready(function() {
 	if(window.location.hash) {
   		var hash = window.location.hash.substring(1);
   		if(hash == 'support') LoLAlert.alert('success', 'Sent!', 'Your support message was sent. You should expect a reply to your Twitch.tv inbox within 24 hours.');
+  		if(hash == 'donated') LoLAlert.alert('success', 'Thank You!', 'Your donation has been received. Thank you for supporting LoLAlerter!');
 	}
+	$("#donateButton").click(function() {
+		$("#donateModal").modal("show");
+	});
 	Twitch.init({clientId: '<?php echo Configure::read('LoLAlert.ClientID'); ?>'}, function(error, status) {
 		$('.twitch-connect').click(function() {
 		  Twitch.login({
@@ -218,15 +235,15 @@ $(document).ready(function() {
 
 		if (status.authenticated) {
 			Twitch.api({method: 'user'}, function(error, user) {
-				$.getJSON('/api/partner/'+user.display_name, function(data) {
+				$.getJSON('/api/partner/'+user.name, function(data) {
 					if(data.partner)
 					{
 						//Methods to be run after login
-						LoLAlert.updateTwitchUsername(user.display_name);
+						LoLAlert.updateTwitchUsername(user.name);
 
 						user.token = Twitch.getToken();
 						LoLAlert.userData = user;
-						LoLAlert.newUserData(user.display_name, status.token);
+						LoLAlert.newUserData(user.name, status.token);
 
 						ChangePanels(true);
 					}
