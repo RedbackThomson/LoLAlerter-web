@@ -1,0 +1,52 @@
+#alerts
+{
+	margin-top: 5px;
+}
+.loading-image
+{
+	background-image: url('/img/loading.gif');
+	height: 24px;
+	width: 24px;
+	margin: 0 auto;
+}
+#newSummoner
+{
+	margin-bottom: 5px;
+}
+#summoners .summoner
+{
+	margin-top: 10px;
+}
+#summoners .summoner:first-of-type
+{
+	margin: 0;
+}
+.summoner 
+{
+	height: 100px;
+	padding: 5px;
+	background: #333;
+	color: #fff;
+	border-radius: 4px;
+}
+.summoner .close:hover
+{
+	color: #f00;
+}
+.summonerIcon
+{
+	height: 90px;
+	float: left;
+}
+.summonerName
+{
+	font-weight: bold;
+	font-size: 20pt;
+	line-height: 1.5;
+	margin-left: 20px;
+	display: inline;
+}
+.summonerDivision
+{
+	margin-left: 20px;
+}

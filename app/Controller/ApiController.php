@@ -23,68 +23,69 @@ class ApiController extends AppController {
 			$json = Set::extract('/User/.', $user);
 			if($json[0]['TwitchToken'] != $token) 
 				$this->updateToken($username, $token);
-
-			$summoners = $this->Summoner->find('all', array('conditions' => array('User' => $json[0]['ID'])));
-			$summoners = Set::extract('/Summoner/.', $summoners);
-			$json[0]['summoners'] = $summoners;
 		}
 
         $this->renderJSON($json[0], true);
 	}
 
-	public function summoners($apikey, $value)
+	public function addSummoner($apiKey, $summoner)
 	{
-		if(!isset($apikey))
+		if(!isset($apiKey))
+			throw new Exception("You didn't give me the api key");
+		if(!isset($summoner))
+			throw new Exception("You didn't give me the summoner");
+
+		$user = $this->getAPIKeyUser($apiKey);
+		if(is_null($user))
+			throw new Exception("Unknown API Key");
+
+		$notFound = array();
+		$inUse = array();
+		$save = array();
+
+		//Cut that fat
+		$summoner = trim($summoner);
+		try
+		{
+			$lolUserID = $this->getSummonerID($summoner);
+		}
+		catch (Exception $x) {}
+		if(!isset($lolUserID))
+			$this->renderError($summoner . " could not be found on the NA servers");
+		else if($this->summonerAlreadyExists($lolUserID))
+			$this->renderError($summoner . " is already registered under a different Twitch account");
+		else
+		{
+			$this->Summoner->save(array('User'=> $user['ID'], 'SummonerName' => 
+				$summoner, 'SummonerID' => $lolUserID));
+			$this->renderJSON(array(), true);
+		}
+	}
+
+	public function removeSummoner($apiKey, $value)
+	{
+		if(!isset($apiKey))
 			throw new Exception("You didn't give me the api key");
 		if(!isset($value))
 			throw new Exception("You didn't give me the value");
 
-		$user = $this->getAPIKeyUser($apikey);
+		$user = $this->getAPIKeyUser($apiKey);
 		if(is_null($user))
 			throw new Exception("Unknown API Key");
 
 		//Remove the current summoners
-		$this->Summoner->deleteAll(array('User' => $user['ID']));
-
-		$splitSummoners = explode(',', $value);
-		$notFound = array();
-		$inUse = array();
-		$save = array();
-		foreach($splitSummoners as $summoner)
-		{
-			//Cut that fat
-			$summoner = trim($summoner);
-			$lolUserID = $this->getSummonerID($summoner);
-			if($this->summonerAlreadyExists($lolUserID))
-				$inUse[] = $summoner;
-			else if($lolUserID != 0)
-				$save[] = array('User'=> $user['ID'], 'SummonerName' => $summoner, 'SummonerID' => $lolUserID);
-			else
-				$notFound[] = $summoner;
-		}
-
-		$this->Summoner->saveMany($save);
-		if(count($notFound)>0 || count($inUse)>0)
-		{
-			$errorText = "Unable to update summoners.";
-			if(count($notFound)>0)
-				$errorText .= "<br/>Summoner names could not be found: ".implode(", ", $notFound).". Ensure summoner is on the NA server. ";
-			if(count($inUse)>0)
-				$errorText .= "<br/>The following summoners are registered under a different Twitch account: ".implode(", ", $inUse).".";
-			$this->renderJSON(array("error" => $errorText), false);
-		}
-		else
-			$this->renderJSON(array("success" => true), true);
+		$this->Summoner->deleteAll(array('SummonerName' => $value));
+		$this->renderJSON(array(), true);
 	}
 
-	public function subscribers($username, $apikey, $limit = 25, $offset = 0)
+	public function subscribers($username, $apiKey, $limit = 25, $offset = 0)
 	{
 		if(!isset($username))
 			throw new Exception("You didn't give me the username");
-		if(!isset($apikey))
+		if(!isset($apiKey))
 			throw new Exception("You didn't give me the api key");
 
-		$user = $this->getAPIKeyUser($apikey);
+		$user = $this->getAPIKeyUser($apiKey);
 		if(!isset($user['ID']))
 			throw new Exception("Unknown api key");
 		if(strtolower($user['TwitchUsername']) != strtolower($username))
@@ -113,6 +114,54 @@ class ApiController extends AppController {
 		}
 		//$return = array('total' => $results->_total);
 		$this->renderJSON($return, true);
+	}
+
+	public function summoners($username, $apiKey)
+	{
+		if(!isset($username))
+			throw new Exception("You didn't give me the username");
+		if(!isset($apiKey))
+			throw new Exception("You didn't give me the api key");
+
+		$user = $this->getAPIKeyUser($apiKey);
+		if(!isset($user['ID']))
+			throw new Exception("Unknown api key");
+		if(strtolower($user['TwitchUsername']) != strtolower($username))
+			throw new Exception("That's not your api key");
+
+		$summoners = $this->Summoner->find('all', array('conditions' => array('User' => $user['ID'])));
+		$summoners = Set::extract('/Summoner/.', $summoners);
+		$summonerIDs = implode(',', Set::extract('/SummonerID', $summoners));
+
+		if($summonerIDs == "")
+		{
+			$this->renderJSON(array(), true);
+			return;
+		}
+
+		$info = $this->getSummonersInfoByID($summonerIDs);
+		$leagues = $this->getLeaguesByID($summonerIDs);
+
+		foreach($summoners as &$summoner)
+		{
+			$summoner['Level'] = $info[$summoner['SummonerID']]['summonerLevel'];
+			if(!is_null($leagues) && array_key_exists($summoner['SummonerID'], $leagues))
+			{
+				foreach($leagues[$summoner['SummonerID']] as $league)
+					if($league['queue'] == "RANKED_SOLO_5x5")
+						foreach($league['entries'] as $entry)
+							if($entry['playerOrTeamId'] == $summoner['SummonerID'])
+								$summoner['Division'] = ucwords(strtolower($league['tier'])) .' '. $league['entries'][0]['division'];
+			}
+			else
+			{
+				$summoner['Division'] = 'Unranked';
+			}
+			if(!isset($summoner['Division'])) $summoner['Division'] = 'Unranked';
+			$summoner['Region'] = 'NA';
+		}
+
+		$this->renderJSON($summoners, true);
 	}
 
 	public function partner($username)
@@ -152,12 +201,52 @@ class ApiController extends AppController {
 	
 	private function getSummonerID($username)
 	{
+		$info = $this->getSummonerInfoByName($username);
+		return $info['id'];
+	}
+
+	private function getSummonerInfoByName($username)
+	{
 		$key = Configure::read('RiotAPI.Key');
 		$username = str_replace(' ','',strtolower($username));
 		$url = "http://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/$username?api_key=" .
+			$key;
+		try
+		{
+			$contents = $this->getURLContents($url);
+		}
+		catch(Exception $x) {return;}
+		$json = json_decode($contents, true);
+		return $json[$username];
+	}
+
+	private function getSummonersInfoByID($IDs)
+	{
+		$key = Configure::read('RiotAPI.Key');
+		$url = "http://na.api.pvp.net/api/lol/na/v1.4/summoner/$IDs?api_key=" .
 		       $key;
-		$json = json_decode(file_get_contents($url), true);
-		return $json[$username]['id'];
+
+		try
+		{
+			$contents = $this->getURLContents($url);
+		}
+		catch(Exception $x) {return;}
+		$json = json_decode($contents, true);
+		return $json;
+	}
+
+	private function getLeaguesByID($IDs)
+	{
+		$key = Configure::read('RiotAPI.Key');
+		$url = "http://na.api.pvp.net/api/lol/na/v2.4/league/by-summoner/$IDs?api_key=" .
+		       $key;
+		try
+		{
+			$contents = $this->getURLContents($url);
+		}
+		catch(Exception $x) {return;}
+		$json = json_decode($contents, true);
+		return $json;	
 	}
 
 	private function updateToken($username, $token)
@@ -179,9 +268,9 @@ class ApiController extends AppController {
 		return (strtolower($username) == strtolower($json->name));
 	}
 
-	private function getAPIKeyUser($apikey)
+	private function getAPIKeyUser($apiKey)
 	{
-		$user = $this->User->find('first', array('conditions' => array('APIKey' => $apikey)));
+		$user = $this->User->find('first', array('conditions' => array('APIKey' => $apiKey)));
 		$user = Set::extract('/User/.', $user);
 		if(isset($user[0]))
 			return $user[0];
@@ -208,6 +297,11 @@ class ApiController extends AppController {
 		  curl_close($ch);
 
 		return $contents;
+	}
+
+	private function renderError($text)
+	{
+		$this->renderJSON(array("error" => $text), false);
 	}
 
 	private function renderJSON($json, $success)

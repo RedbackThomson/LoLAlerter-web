@@ -1,17 +1,37 @@
 <section id="about" class="loggedOut">
 	<div class="row clearfix">
 		<div class="col-md-4">
-			<h2>About It</h2>
+			<h2>About</h2>
 			<p class="well">
-				For large streamers, it can sometimes be difficult to track the people that are subscribing to your channel - either because the chat moves too quickly or you are in the middle of a game. However, the LoL chat enables an easy way to get the message through to the streamer while they're playing the game. LoL Alerter does exactly this - it will send you a message when you get a new subscriber.
+				LoLAlerter is a tool which simplifies the process of getting information to the streamer.<br/>
+				Even in the fastest Twitch chats, LoLAlerter provides the streamer with information about
+				the people that support them.<br/>
+				The bot sends a League of Legends message to the streamer containing their latest subscriber without
+				any need for interaction.				
 			</p>
 		</div>
 		<div class="col-md-8">
 			<h2>Getting Started</h2>
 			<p class="well">
-				To be able to send messages, the LoL Alerter bot will need to be in your friends list. This bot is not run by a person (the account will never be used to play LoL), and such your privacy is safe.<br/><br/>
-				For the bot to be able to access your subscriber list, it needs a verification from Twitch. This is why it is necessary that you log in with Twitch.tv.<br/><br/>
-				If there are any questions, complaints or recommendations, you can contact the developer at <a target="_self" href="mailto:redback93@hotmail.com">my email</a> or on <a target="_new" href="http://twitch.tv/Redback93">Twitch.tv</a>.
+				In order for the bot to access your subscribers, you must use a partnered Twitch account.<br/><br/>
+				Once the account has been configured, you simply add the bot in LoL and it will run transparently.
+			</p>
+
+			<h2>Statistics <small>(Coming Soon)</small></h2>
+			<div class="well">
+				<dl class="dl-horizontal" style="margin-bottom: 0px;">
+					<dt>Total Subscribed</dt>
+					<dd>0</dd>
+					<dt>Online Users</dt>
+					<dd>0</dd>
+					<dt>Largest Donation</dt>
+					<dd>$0</dd>
+				</dl>
+			</div>
+
+			<h4>Contact</h4>
+			<p class="well">
+				If there are any questions, complaints or recommendations, you can contact Redback at <a target="_self" href="mailto:redback93@hotmail.com">his email</a> or on <a target="_new" href="http://twitch.tv/Redback93">Twitch.tv</a>.
 			</p>
 		</div>
 	</div>
@@ -27,34 +47,37 @@
 						<input type="text" class="form-control input-sm" id="settingsTwitchUsername" readonly="readonly">
 					</div>
 					<div class="form-group">
-						<label for="settingsLoLUsername">LoL Summoner Names</label>
-						<textarea class="form-control input-sm" id="settingsLoLUsername" placeholder="Summoner1,Summoner2" value=""></textarea>
+						<label for="settingsLoLRegion">League Region</label>
+						<input type="text" class="form-control input-sm" id="settingsLoLRegion" readonly="readonly" value="North America">
 					</div>
-					<button type="submit" class="btn btn-primary btn-sm">Update</button>
 				</form>
 			</div>
 		</div>
 		<div class="col-md-8">
 			<h2>Set Up</h2>
-			<p class="well">
-				It's very easy to set up LoLAlerter - two easy steps:<br/><br/>
-				1. Add each of your summoner names to the "LoL Summoner Names" box on the left (separated by commas).<br/>
-				2. On each of the accounts, add the bot to your friends list.<br/><br/>
-				The username of the bot is "LoLAlerter" - on the NA server.<br/>
-				If the bot does not accept your friend request, check that the summoner has been added to the list.
-			</p>
-			<h2>Subscribers</h2>
-
-			<div role="grid" class="dataTables_wrapper form-inline" id="donations-table_wrapper">
-				<table style="width: 769px;" id="donations-table" class="table table-bordered table-striped bootstrap-datatable datatable dataTable" aria-describedby="donations-table_info">
-					<thead>
-						<tr role="row">
-							<th style="width:170px;" class="sorting" role="columnheader">Twitch Username</th>
-							<th class="sorting-desc" role="columnheader" tabindex="0">Subscription Date</th>
-						</tr>
-					</thead>
-				</table>
+			<div class="well">
+				<dl class="dl-horizontal" style="margin-bottom: 0px;">
+					<dt>Step 1</dt>
+					<dd>Add summoners using the box below</dd>
+					<dt>Step 2</dt>
+					<dd>On each of the accounts, add the bot (LoLAlerter) to your friends list</dd>
+					<dt>Step 3</dt>
+					<dd>Start Streaming!</dd>
+				</dl>
 			</div>
+			<h2>Summoners</h2>
+			<div id="newSummoner"><div style="width: 25%;float: left;margin-right: 5px;"><input type="text" class="form-control" placeholder="Summoner Name" /></div><input type="button" class="btn btn-success" value="Add" /></div>
+			<div class="well" id="summoners">
+				<div class="loading-image"></div>
+			</div>
+			<script id="summonerTemplate" type="text/x-jQuery-tmpl">
+				<div class="summoner">
+					<button class="close" type="button" onclick="LoLAlert.removeSummoner('${SummonerName}')"><span aria-hidden="true">×</span><span class="sr-only">Delete</span></button>
+					<img class="summonerIcon" src="http://avatar.leagueoflegends.com/${Region}/${TrimName(SummonerName)}.png"/>
+					<h2 class="summonerName">${SummonerName}</h2><br/>
+					<span class="summonerDivision">Level ${Level} ${Division}</span>
+				</div>
+			</script>
 		</div>
 	</div>
 </section>
@@ -70,7 +93,7 @@
 					If you're having any issues with the bot or your configuration, please specify the specific summoners that are being affected.
 				</p>
 				<p>
-					Response to the support will be through your Twitch.tv inbox. If you wish for any other method, please specify it in the body.
+					Response to the support will be through your Twitter. If you wish for any other method, please specify it in the body.
 				</p>
 				<form id="supportForm" class="form-horizontal" role="form" action="/issue" method="POST">
 					<div class="form-group">

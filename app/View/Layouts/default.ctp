@@ -29,6 +29,7 @@
 	<?php 
 		echo $this->Html->meta('icon', '/favicon.png'); 
 		echo $this->Html->css('bootstrap.min');
+		echo $this->Html->css('lolalerter');
 	?>
 	<meta name="Description" content="A League of Legends in game chat bot which will alert the Twitch.tv user when a new user subscribes. The bot runs without any interaction once it is set up." />
 	<style type="text/css">
@@ -92,7 +93,7 @@ footer {
 	<div class="container">
 		<hr/>
 		<footer>
-			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="#" id="donateButton">Donate!</a>
+			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="#" id="donateButton">Donate with Bitcoin!</a>
 		</footer>
 	</div>
 	<div class="modal fade" id="donateModal">
@@ -103,7 +104,7 @@ footer {
 					<h4 class="modal-title">Donate to LoLAlerter</h4>
 				</div>
 				<div class="modal-body">
-					<iframe id="coinbase_inline_iframe_260aa53a8f19b98a77439aecc52f3a59" src="https://coinbase.com/inline_payments/260aa53a8f19b98a77439aecc52f3a59?c=LOLALERTERDONATION" style="width: 100%; height: 160px; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.25); overflow: hidden;" scrolling="no" allowtransparency="true" frameborder="0"></iframe>
+					
 				</div>
 			</div>
 		</div>
@@ -115,9 +116,7 @@ footer {
 	echo $this->Html->script('jquery.min');
 	echo $this->Html->script('bootstrap.min');
 	echo $this->Html->script('https://ttv-api.s3.amazonaws.com/twitch.min.js');
-	echo $this->Html->script('jquery.dataTables');
-	echo $this->Html->script('dataTables.bootstrap.js');
-	echo $this->Html->script('paging');
+	echo $this->Html->script('http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js');
 
 
 	echo $this->fetch('css');
@@ -129,63 +128,59 @@ $(document).ready(function() {
 		alert: function(kind, title, message) {
 			$("#alerts").append('<div class="alert alert-dismissable alert-'+kind+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>'+title+'</strong>&nbsp;'+message+'</div>')
 		},
-		newLoLUsername: function(lolusername, callback){
-			$.getJSON('/api/summoners/'+LoLAlert.userData.apikey+'/'+lolusername, function(data) {
+		newUserData: function(username, token, callback){
+			$.getJSON('/api/user/'+username+'/'+token, function(data) {
 				if(data.success == true) { 
-					$("#settingsLoLUsername").val(lolusername);
-					LoLAlert.alert('success', 'Updated!', 'Settings have been successfully updated.');
+					LoLAlert.userData.apikey = data.APIKey;
+
+					$("#settingsTwitchUsername").val(LoLAlert.userData.display_name);
+					LoLAlert.createSummonersList();
 				}
-				else
-				{
+				if(callback) {
+					callback();
+				}
+			});
+		},
+		updateTwitchUsername: function(display_name){
+			$("#navUsername").text('Logged in as '+display_name);
+		},
+		createSummonersList: function()
+		{
+			$('.summoner').remove();
+			$("#summoners .loading-image").show();
+			$.getJSON('/api/summoners/'+LoLAlert.userData.name+'/'+LoLAlert.userData.apikey, function(data) {
+				delete data['success'];
+				jQuery.each(data, function() {
+					$("#summonerTemplate").tmpl(this).prependTo("#summoners");
+				});
+				$("#summoners .loading-image").hide();
+			});
+		},
+		addSummoner: function(name)
+		{
+			$.getJSON('/api/addSummoner/'+LoLAlert.userData.apikey+'/'+name, function(data) {
+				if(data.success == false) 
+				{ 
 					if(data.error)
 						LoLAlert.alert('danger', 'Error', data.error);
 					else
 						LoLAlert.alert('danger', 'Error', 'Unknown error');
 				}
-				if(callback) {
-					callback();
-				}
+				LoLAlert.createSummonersList();
 			});
 		},
-		newUserData: function(username, token, callback){
-			$.getJSON('/api/user/'+username+'/'+token, function(data) {
-				if(data.success == true) { 
-					LoLAlert.userData.apikey = data.APIKey;
-					$("#settingsTwitchUsername").val(data.TwitchUsername);
-					$("#settingsLoLUsername").val(LoLAlert.getSummonersList(data.summoners));
-
-					$.getJSON('/api/subscribers/'+data.TwitchUsername+'/'+LoLAlert.userData.apikey + '/1', function(tabledata) {
-						if(tabledata.success == true)
-						{
-							$(".dataTable").dataTable( {
-								"bProcessing": true,
-								"sAjaxSource": '/api/subscribers/'+data.TwitchUsername+'/'+LoLAlert.userData.apikey,
-								"sDom": "<'row'<'col-md-6 pull-left'f><'col-md-6 pull-right'l>r>t<'row'<'col-md-12 pull-left'i><'col-md-12 center'p>>",
-								"sPaginationType": "bootstrap"
-							});
-						}
-						else
-						{
-							LoLAlert.alert('danger', 'Error', data.error);
-						}
-					});
-				}
-				if(callback) {
-					callback();
-				}
-			});
-		},
-		updateTwitchUsername: function(username){
-			$("#navUsername").text('Logged in as '+username);
-		},
-		getSummonersList: function(summoners)
+		removeSummoner: function(name)
 		{
-			var retVal = "";
-			jQuery.each(summoners, function() {
-			  	retVal += this.SummonerName + ",";
+			$.getJSON('/api/removeSummoner/'+LoLAlert.userData.apikey+'/'+name, function(data) {
+				if(data.success == false) 
+				{ 
+					if(data.error)
+						LoLAlert.alert('danger', 'Error', data.error);
+					else
+						LoLAlert.alert('danger', 'Error', 'Unknown error');
+				}
+				LoLAlert.createSummonersList();
 			});
-			retVal = retVal.substring(0, retVal.length - 1);
-			return retVal;
 		},
 	};
 	function ChangePanels(login)
@@ -207,12 +202,24 @@ $(document).ready(function() {
 	    var body = $.trim($('#supportForm #inputBody').val());
 	    return !(name == '' || body == '');
 	});
+	$('#newSummoner input[type="button"]').click(function() {
+		LoLAlert.addSummoner($('#newSummoner input[type="text"]').val());
+		$('#newSummoner input[type="text"]').val('');
+	});
+	$('#newSummoner input[type="text"]').on("keypress", function(e) {
+		if(e.keyCode == 13)
+		{
+			$('#newSummoner input[type="button"]').click();
+			return false;
+		}
+	});
 	if(window.location.hash) {
   		var hash = window.location.hash.substring(1);
   		if(hash == 'support') LoLAlert.alert('success', 'Sent!', 'Your support message was sent. You should expect a reply to your Twitch.tv inbox within 24 hours.');
   		if(hash == 'donated') LoLAlert.alert('success', 'Thank You!', 'Your donation has been received. Thank you for supporting LoLAlerter!');
 	}
 	$("#donateButton").click(function() {
+		$('#donateModal .modal-body').html('<iframe id="coinbase_inline_iframe_375f27cde5aa772c4f75ddf728f0b047" src="https://coinbase.com/inline_payments/375f27cde5aa772c4f75ddf728f0b047?c=LOLALERTERDONATION" style="width: 100%; height: 160px; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.25); overflow: hidden;" scrolling="no" allowtransparency="true" frameborder="0"></iframe>');
 		$("#donateModal").modal("show");
 	});
 	Twitch.init({clientId: '<?php echo Configure::read('LoLAlert.ClientID'); ?>'}, function(error, status) {
@@ -235,11 +242,12 @@ $(document).ready(function() {
 
 		if (status.authenticated) {
 			Twitch.api({method: 'user'}, function(error, user) {
+				if(user == null) return;
 				$.getJSON('/api/partner/'+user.name, function(data) {
 					if(data.partner)
 					{
 						//Methods to be run after login
-						LoLAlert.updateTwitchUsername(user.name);
+						LoLAlert.updateTwitchUsername(user.display_name);
 
 						user.token = Twitch.getToken();
 						LoLAlert.userData = user;
@@ -254,6 +262,10 @@ $(document).ready(function() {
 		}
 	});
 });
+function TrimName(username)
+{
+	return username.replace(/\s+/g, '');
+}
 </script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
