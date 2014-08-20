@@ -93,7 +93,7 @@ footer {
 	<div class="container">
 		<hr/>
 		<footer>
-			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://softcode.co/">Redback93</a> • <a href="#" id="donateButton">Donate with Bitcoin!</a>
+			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://reddev.me/">Redback93</a> • <a href="#" id="donateButton">Donate with Bitcoin!</a>
 		</footer>
 	</div>
 	<div class="modal fade" id="donateModal">
