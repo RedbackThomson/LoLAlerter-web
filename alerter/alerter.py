@@ -68,11 +68,12 @@ class LoLAlerter:
 		self.SendMessage(target, message)\
 
 	def Broadcast(self, message):
-		for alert in self.current_alerts:
+		for username, alert in self.current_alerts.iteritems():
+			AlerterLogger.logger.info('Sending broadcast to {}'.format(username))
 			self.SendMessage(alert.summoner_id, message)
 
 	def Restart(self):
-		for alert in self.current_alerts:
+		for username, alert in self.current_alerts.iteritems():
 			alert.Stop()
 		self.current_alerts = dict()
 
