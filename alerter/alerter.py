@@ -65,7 +65,11 @@ class LoLAlerter:
 		print '[LoLAlerter] Sending {} to {}'.format(new_sub, target)
 		AlerterLogger.logger.info('Sending {} to {}'.format(new_sub, target))
 		message = '{} has just subscribed!'.format(new_sub)
-		self.SendMessage(target, message)
+		self.SendMessage(target, message)\
+
+	def Broadcast(self, message):
+		for alert in self.current_alerts:
+			self.SendMessage(alert.summoner_id, message)
 
 	def Restart(self):
 		for alert in self.current_alerts:

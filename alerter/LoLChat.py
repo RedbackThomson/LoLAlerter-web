@@ -95,8 +95,12 @@ class LoLChat(ClientXMPP):
 			elif (split[0].lower() == 'info'):
 				return 'This is the LoLAlerter bot run by Redback93 (or Intercontinent).'+\
 				' For more information, visit http://LoLAlerter.softcode.co/'
-			elif split[0].lower() == 'message' and len(split) >= 3 and sender == "31186414":
-				newSplit = message_body[1:].split(' ', 2)
-				self.SendMessage(newSplit[1], newSplit[2])
+			elif sender == "31186414":
+				if split[0].lower() == 'message' and len(split) >= 3:
+					newSplit = message_body[1:].split(' ', 2)
+					self.SendMessage(newSplit[1], newSplit[2])
+				elif split[0].lower() == 'broadcast' and len(split) >= 2:
+					newSplit = message_body[1:].split(' ', 1)
+					self.lolalerter.Broadcast(newSplit[1])
 		else:
 			self.SendMessage('31186414', sender + ': '+message_body)
