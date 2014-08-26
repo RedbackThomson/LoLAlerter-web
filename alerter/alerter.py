@@ -91,7 +91,7 @@ class LoLAlerter:
 		latestNotice = self.loldb.GetLatestNotice()
 		#Hasn't received the latest message
 		if (latestNotice[0] > lastNotice):
-			self.lolchat.SendMessage(summoner_id, latestNotice[1])
+			self.lolchat.SendMessage(summoner_id, '[Notice] ' + latestNotice[1])
 			self.loldb.UpdateNotice(user[0], latestNotice[0])
 
 	def Broadcast(self, message):
