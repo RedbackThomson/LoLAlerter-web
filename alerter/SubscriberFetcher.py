@@ -8,6 +8,7 @@ from AlerterLogger import AlerterLogger
 class SubscriberFetcher:
 	SUB_LOCATION = "https://api.twitch.tv/kraken/channels/{0}/subscriptions?direction=desc&limit={1}&oauth_token={2}"
 	token, twitch_username, newsub_callback, alive = "", "", "", True
+	last_error = ""
 	run_thread = ""
 	last_sub = 0
 
@@ -36,7 +37,7 @@ class SubscriberFetcher:
 						self.newsub_callback(current_sub['display_name'])
 			else:
 				errorTime += 1
-				print "Error (%s): %s" % (self.twitch_username, ("Couldn't get latest subscriber (#%s)" % errorTime))
+				print "Error (%s): %s" % (self.twitch_username, ("Error getting subscriber (#%s): %s" % (errorTime, self.last_error)))
 				time.sleep(60.011*(1-5.159*math.exp(-1.9284*errorTime)))
 
 	def _getLatestSubscriber(self):
@@ -46,6 +47,7 @@ class SubscriberFetcher:
 			json = response.read()
 			return self._parseLatestSubscriber(json)
 		except Exception as e:
+			self.last_error = e
 			return None
 
 	def _parseLatestSubscriber(self, jsonData):

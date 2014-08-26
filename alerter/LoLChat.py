@@ -4,6 +4,7 @@ from AlerterLogger import AlerterLogger
 
 class LoLChat(ClientXMPP):
 	ADDRESS, ADDRESS_PORT, SERVER = 'chat.na1.lol.riotgames.com', 5223, 'pvp.net'
+	INTERCONTINENT = '31186414'
 	users = []
 
 	def __init__(self, lolalerter, loldb, jid, password):
@@ -95,12 +96,14 @@ class LoLChat(ClientXMPP):
 			elif (split[0].lower() == 'info'):
 				return 'This is the LoLAlerter bot run by Redback93 (or Intercontinent).'+\
 				' For more information, visit http://LoLAlerter.softcode.co/'
-			elif sender == "31186414":
+			elif sender == self.INTERCONTINENT:
 				if split[0].lower() == 'message' and len(split) >= 3:
 					newSplit = message_body[1:].split(' ', 2)
 					self.SendMessage(newSplit[1], newSplit[2])
 				elif split[0].lower() == 'broadcast' and len(split) >= 2:
 					newSplit = message_body[1:].split(' ', 1)
 					self.lolalerter.Broadcast(newSplit[1])
+				elif split[0].lower() == 'online':
+					self.SendMessage(self.INTERCONTINENT, 'Users Online: ' + ', '.join(str(x) for x in self.lolalerter.GetOnline()))
 		else:
-			self.SendMessage('31186414', sender + ': '+message_body)
+			self.SendMessage(self.INTERCONTINENT, sender + ': '+message_body)
