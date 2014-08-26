@@ -4,12 +4,13 @@ from AlerterLogger import AlerterLogger
 
 class LoLChat(ClientXMPP):
 	ADDRESS, ADDRESS_PORT, SERVER = 'chat.na1.lol.riotgames.com', 5223, 'pvp.net'
-	INTERCONTINENT = '31186414'
+	INTERCONTINENT = ''
 	users = []
 
 	def __init__(self, lolalerter, loldb, jid, password):
 		self.lolalerter = lolalerter
 		self.loldb = loldb
+		self.INTERCONTINENT = self.loldb.GetSetting("LoLRedbackID")
 
 		"""Create the XMPP connection"""
 		ClientXMPP.__init__(self, jid + '@' + LoLChat.SERVER + '/xiff', 'AIR_' + password)
@@ -37,8 +38,12 @@ class LoLChat(ClientXMPP):
 	def SendMessage(self, target, message):
 		self.send_message(mto='sum'+target+'@'+LoLChat.SERVER+'/xiff', mbody=message, mtype='chat')
 
+	def UnFriend(self, summoner_id):
+		self.sendPresence(pto=self._getToId(summoner_id), ptype='unsubscribed')
+		self.sendPresence(pto=self._getToId(summoner_id), ptype='unsubscribe')
+
 	def _session_start(self, event):
-		self.send_presence(-1, self._getPresenceString('Bot Online'))
+		self.send_presence(-1, self._getPresenceString(self.loldb.GetSetting("InGameStatus")))
 		self.get_roster()
 
 	def _message(self, msg):
@@ -66,12 +71,13 @@ class LoLChat(ClientXMPP):
 		if(toAccept):
 			self.sendPresence(pto=presence['from'], ptype='subscribed')
 			self.sendPresence(pto=presence['from'], ptype='subscribe')
+			self.SendMessage(requestor, "Summoner successfully added. Welcome to LoLAlerter!")
 		else:
 			self.sendPresence(pto=presence['from'], ptype='unsubscribed')
 			self.sendPresence(pto=presence['from'], ptype='unsubscribe')
 
 	def _presence_unsubscribe(self, presence):
-		print 'unsubscribed: ' + str(presence['from'])
+		AlerterLogger.logger.info('Deleted Friend: ' + str(presence['from']))
 
 	def _disconnected(self):
 		self.lolalerter.Restart()
@@ -79,11 +85,14 @@ class LoLChat(ClientXMPP):
 	def _getSummonerId(self, fromID):
 		return fromID.replace('@'+LoLChat.SERVER, '').replace('sum','').replace('/xiff', '').replace('/lolapp.me', '').replace('/Smack', '')
 
+	def _getToId(self, summoner_id):
+		return "sum"+summoner_id+"@pvp.net/xiff"
+
 	def _getPresenceString(self, message):
-		return '<body><profileIcon>668</profileIcon><level>1</level><wins>0</wins><leaves>0</leaves>'+\
-		'<queueType>RANKED_SOLO_5x5</queueType><rankedWins>0</rankedWins><rankedLosses>0</rankedLosses>'+\
+		return '<body><profileIcon>668</profileIcon><level>30</level><wins>0</wins><leaves>0</leaves>'+\
+		'<queueType>RANKED_SOLO_5x5</queueType><rankedWins>5</rankedWins><rankedLosses>0</rankedLosses>'+\
 		'<rankedRating>0</rankedRating><statusMsg>'+message+\
-		'</statusMsg><gameStatus>outOfGame</gameStatus><tier>PLATINUM</tier></body>'
+		'</statusMsg><gameStatus>outOfGame</gameStatus><tier>CHALLENGER</tier></body>'
 
 	def _processMessage(self, message_body, sender):
 		firstChar = message_body[0]
