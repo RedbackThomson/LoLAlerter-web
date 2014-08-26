@@ -29,3 +29,6 @@ app/Test/Fixture/empty
 alerter/LoLAlerter.log
 alerter/log/
 alerter/tmp_alerter.pid
+alerter/settings.dev.json
+alerter/settings.json
+alerter/settings.prod.json

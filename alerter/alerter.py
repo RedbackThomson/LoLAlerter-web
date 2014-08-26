@@ -3,6 +3,7 @@
 import threading
 import os
 import inspect
+import json
 
 from AlerterUser import AlerterUser
 from AlerterLogger import AlerterLogger
@@ -16,10 +17,21 @@ class LoLAlerter:
 	def __init__(self):
 		AlerterLogger.InitLogger()
 		self.loldb = LoLDB()
+		self.LoadDatabaseSettings();
 		self.loldb.Connect()
 		print '[LoLAlerter] Loaded Database' 
+
 		self.LoadSummonerSettings()
 		self.lolchat = LoLChat(self, self.loldb, self.lol_username, self.lol_password)
+
+	def LoadDatabaseSettings(self):
+		settingsFile = open('settings.json', 'r')
+		settings = json.loads(settingsFile.read())
+		dbSettings = settings['database']
+		self.loldb.login_host = dbSettings['host']
+		self.loldb.login_user = dbSettings['user']
+		self.loldb.login_pass = dbSettings['pass']
+		self.loldb.login_db = dbSettings['db']
 
 	def LoadSummonerSettings(self):
 		self.lol_username = self.loldb.GetSetting("LoLUsername")

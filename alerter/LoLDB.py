@@ -2,7 +2,7 @@ import MySQLdb
 from AlerterLogger import AlerterLogger
 
 class LoLDB:
-	login_host, login_user, login_pass, login_db = "localhost", "root", "admin", "lolalerter"
+	login_host, login_user, login_pass, login_db = "", "", "", ""
 
 	def Connect(self):
 		self.conn = MySQLdb.connect(host=self.login_host,user=self.login_user,passwd=self.login_pass,db=self.login_db)
