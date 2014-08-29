@@ -63,7 +63,6 @@ class LoLAlerter:
 
 			print '[LoLAlerter] User Online: ' + str(user[2]) + '@' + str(summoner_id)
 			AlerterLogger.logger.info('User Online: ' + str(user[2]) + '@' + str(summoner_id))
-			self.loldb.IncrementOnlineUsers()
 			if(user[2] in self.current_alerts): 
 				##Chat might have reset - no need to restart the whole thread service
 				self.current_alerts[user[2]].Stop()
@@ -71,6 +70,7 @@ class LoLAlerter:
 
 			self.current_alerts[user[2]] = AlerterUser(self.SendNewSub, user[2], summoner_id, user[3])
 			self.current_alerts[user[2]].Start()
+			self.loldb.SetOnlineUsers(len(current_alerts))
 		except Exception, e:
 			print e
 			AlerterLogger.logger.error(str(e))
@@ -82,10 +82,11 @@ class LoLAlerter:
 
 		print '[LoLAlerter] User Offline: ' + str(user[2]) + '@' + str(summoner_id)
 		AlerterLogger.logger.info('User Offline: ' + str(user[2]) + '@' + str(summoner_id))
-		self.loldb.DecrementOnlineUsers()
 		if(user[2] in self.current_alerts): 
 			self.current_alerts[user[2]].Stop()
 			del self.current_alerts[user[2]]
+
+		self.loldb.SetOnlineUsers(len(current_alerts))
 
 	def SendMessage(self, target, message):
 		self.lolchat.SendMessage(target, message)

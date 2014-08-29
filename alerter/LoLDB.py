@@ -1,5 +1,4 @@
 import MySQLdb
-from AlerterLogger import AlerterLogger
 
 class LoLDB:
 	login_host, login_user, login_pass, login_db = "", "", "", ""
@@ -21,13 +20,9 @@ class LoLDB:
 		cursor.execute("SELECT * FROM `users` WHERE `ID`= (SELECT `User` FROM `summoners` WHERE `SummonerID`= "+str(summoner_id)+");")
 		return cursor.fetchone()
 
-	def IncrementOnlineUsers(self):
+	def SetOnlineUsers(self, onlineUsers):
 		cursor = self.conn.cursor()
-		cursor.execute("UPDATE `statistics` SET `Value` = `Value` + 1 WHERE `Key`='OnlineUsers';")
-
-	def DecrementOnlineUsers(self):
-		cursor = self.conn.cursor()
-		cursor.execute("UPDATE `statistics` SET `Value` = `Value` - 1 WHERE `Key`='OnlineUsers';")
+		cursor.execute("UPDATE `statistics` SET `Value` = "+onlineUsers+" WHERE `Key`='OnlineUsers';")
 
 	def ResetOnlineUsers(self):
 		cursor = self.conn.cursor()

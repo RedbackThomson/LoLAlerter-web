@@ -83,7 +83,7 @@ class LoLChat(ClientXMPP):
 		self.lolalerter.Restart()
 
 	def _getSummonerId(self, fromID):
-		return fromID.replace('@'+LoLChat.SERVER, '').replace('sum','').replace('/xiff', '').replace('/lolapp.me', '').replace('/Smack', '')
+		return fromID.replace('@'+LoLChat.SERVER, '').replace('sum','').replace('/xiff', '').replace('/lolapp.me', '').replace('/Smack', '').replace('/Android', '')
 
 	def _getToId(self, summoner_id):
 		return "sum"+summoner_id+"@pvp.net/xiff"
