@@ -22,7 +22,7 @@ class LoLDB:
 
 	def SetOnlineUsers(self, onlineUsers):
 		cursor = self.conn.cursor()
-		cursor.execute("UPDATE `statistics` SET `Value` = "+onlineUsers+" WHERE `Key`='OnlineUsers';")
+		cursor.execute("UPDATE `statistics` SET `Value` = "+str(onlineUsers)+" WHERE `Key`='OnlineUsers';")
 
 	def ResetOnlineUsers(self):
 		cursor = self.conn.cursor()

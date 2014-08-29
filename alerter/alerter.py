@@ -70,7 +70,7 @@ class LoLAlerter:
 
 			self.current_alerts[user[2]] = AlerterUser(self.SendNewSub, user[2], summoner_id, user[3])
 			self.current_alerts[user[2]].Start()
-			self.loldb.SetOnlineUsers(len(current_alerts))
+			self.loldb.SetOnlineUsers(len(self.current_alerts))
 		except Exception, e:
 			print e
 			AlerterLogger.logger.error(str(e))
@@ -86,7 +86,7 @@ class LoLAlerter:
 			self.current_alerts[user[2]].Stop()
 			del self.current_alerts[user[2]]
 
-		self.loldb.SetOnlineUsers(len(current_alerts))
+		self.loldb.SetOnlineUsers(len(self.current_alerts))
 
 	def SendMessage(self, target, message):
 		self.lolchat.SendMessage(target, message)
