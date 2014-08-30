@@ -238,7 +238,7 @@ class ApiController extends AppController {
 	private function getLeaguesByID($IDs)
 	{
 		$key = Configure::read('RiotAPI.Key');
-		$url = "http://na.api.pvp.net/api/lol/na/v2.4/league/by-summoner/$IDs?api_key=" .
+		$url = "http://na.api.pvp.net/api/lol/na/v2.5/league/by-summoner/$IDs?api_key=" .
 		       $key;
 		try
 		{
