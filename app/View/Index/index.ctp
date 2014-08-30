@@ -17,15 +17,15 @@
 				Once the account has been configured, you simply add the bot in LoL and it will run transparently.
 			</p>
 
-			<h2>Statistics <small>(Coming Soon)</small></h2>
+			<h2>Statistics</h2>
 			<div class="well">
 				<dl class="dl-horizontal" style="margin-bottom: 0px;">
 					<dt>Total Subscribed</dt>
-					<dd>0</dd>
+					<dd><?php echo($totalSubscribed); ?></dd>
 					<dt>Online Users</dt>
-					<dd>0</dd>
+					<dd><?php echo($onlineUsers); ?></dd>
 					<dt>Largest Donation</dt>
-					<dd>$0</dd>
+					<dd>$<?php echo($largestDonation); ?></dd>
 				</dl>
 			</div>
 
