@@ -20,7 +20,7 @@
 			<h2>Statistics</h2>
 			<div class="well">
 				<dl class="dl-horizontal" style="margin-bottom: 0px;">
-					<dt>Total Subscribed</dt>
+					<dt>Total Subscribed<small><abbr title="Since August 30, 2014">(?)</abbr></small></dt>
 					<dd><?php echo($totalSubscribed); ?></dd>
 					<dt>Online Users</dt>
 					<dd><?php echo($onlineUsers); ?></dd>
