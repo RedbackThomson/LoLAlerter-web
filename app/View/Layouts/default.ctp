@@ -93,7 +93,7 @@ footer {
 	<div class="container">
 		<hr/>
 		<footer>
-			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://reddev.me/">Redback93</a> • <a href="#" id="donateButton">Donate with Bitcoin!</a>
+			Page generated in <?php echo(number_format(microtime(true) - $start_time, 3));?> seconds &copy; Created by <a href="http://reddev.me/">Redback93</a> • <a target="_new" href="http://donationmonitor.softcode.co/Donate/LoLShadow">Donate with Paypal!</a> • <a href="#" id="donateButton">Donate with Bitcoin!</a>
 		</footer>
 	</div>
 	<div class="modal fade" id="donateModal">
@@ -223,6 +223,7 @@ $(document).ready(function() {
 		$("#donateModal").modal("show");
 	});
 	Twitch.init({clientId: '<?php echo Configure::read('LoLAlert.ClientID'); ?>'}, function(error, status) {
+		LoLAlert.alert('info', 'We\'ve moved!', 'LoLAlerter has moved to the more permanent location of <a href="http://lolalerter.com">http://lolalerter.com</a>');
 		$('.twitch-connect').click(function() {
 		  Twitch.login({
 		  	redirect_uri: "<?php echo Configure::read('LoLAlert.Redirect'); ?>",
@@ -273,7 +274,7 @@ function TrimName(username)
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-50560855-1', 'softcode.co');
+  ga('create', 'UA-50560855-1', 'auto');
   ga('send', 'pageview');
 
 </script>
