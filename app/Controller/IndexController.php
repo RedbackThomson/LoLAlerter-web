@@ -1,22 +1,30 @@
 <?php
 class IndexController extends AppController {
-	public $uses = array('Statistic');
+	public $uses = array('AlerterStatistic', 'Setting', 'Region');
 	public function index()
 	{
 		$onlineUsers = 
-			$this->Statistic->find('first', array('conditions' => array('Key' => 'OnlineUsers')));
-		$onlineUsers = $onlineUsers['Statistic']['Value'];
+			$this->AlerterStatistic->find('all', array('fields' => array('sum(OnlineUsers) as totalOnline')));
+		$onlineUsers = $onlineUsers[0][0]['totalOnline'];
 
 		$largestDonation = 
-			$this->Statistic->find('first', array('conditions' => array('Key' => 'LargestDonation')));
-		$largestDonation = $largestDonation['Statistic']['Value'];
+			$this->Setting->find('first', array('conditions' => array('Key' => 'LargestDonation')));
+		$largestDonation = $largestDonation['Setting']['Value'];
 
 		$totalSubscribed = 
-			$this->Statistic->find('first', array('conditions' => array('Key' => 'TotalSubscribed')));
-		$totalSubscribed = $totalSubscribed['Statistic']['Value'];
+			$this->AlerterStatistic->find('all', array('fields' => array('sum(TotalSubscribed) as totalSubscribed')));
+		$totalSubscribed = $totalSubscribed[0][0]['totalSubscribed'];
 
 		$this->set('onlineUsers', $onlineUsers);
 		$this->set('largestDonation', $largestDonation);
 		$this->set('totalSubscribed', $totalSubscribed);
+
+		$this->set('regions', $this->getAllRegions());
+	}
+
+	private function getAllRegions()
+	{
+		$regions = $this->Region->find('all');
+		return Set::extract('/Region/.', $regions);
 	}
 }

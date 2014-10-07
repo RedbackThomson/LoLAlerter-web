@@ -48,7 +48,12 @@
 					</div>
 					<div class="form-group">
 						<label for="settingsLoLRegion">League Region</label>
-						<input type="text" class="form-control input-sm" id="settingsLoLRegion" readonly="readonly" value="North America">
+						<button type="button" class="btn btn-default dropdown-toggle form-control input-sm" id="settingsLoLRegion" data-toggle="dropdown">North America <span class="caret"></span></button>
+						<ul class="dropdown-menu" style="position:relative;width:100%;">
+							<?php foreach($regions as $region):?>
+							<li><a class="newRegion" href="#" region-code="<?php echo($region['RegionCode']); ?>"><?php echo($region['RegionName']); ?></a></li>
+							<?php endforeach;?>
+						</ul>
 					</div>
 				</form>
 			</div>
@@ -72,7 +77,7 @@
 			</div>
 			<script id="summonerTemplate" type="text/x-jQuery-tmpl">
 				<div class="summoner">
-					<button class="close" type="button" onclick="LoLAlert.removeSummoner('${SummonerName}')"><span aria-hidden="true">×</span><span class="sr-only">Delete</span></button>
+					<button class="close" type="button" onclick="LoLAlert.removeSummoner('${SummonerID}')"><span aria-hidden="true">×</span><span class="sr-only">Delete</span></button>
 					<img class="summonerIcon" src="http://avatar.leagueoflegends.com/${Region}/${TrimName(SummonerName)}.png"/>
 					<h2 class="summonerName">${SummonerName}</h2><br/>
 					<span class="summonerDivision">Level ${Level} ${Division}</span>

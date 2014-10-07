@@ -128,10 +128,11 @@ $(document).ready(function() {
 		alert: function(kind, title, message) {
 			$("#alerts").append('<div class="alert alert-dismissable alert-'+kind+'"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>'+title+'</strong>&nbsp;'+message+'</div>')
 		},
-		newUserData: function(username, token, callback){
-			$.getJSON('/api/user/'+username+'/'+token, function(data) {
+		newUserData: function(username, display, token, callback){
+			$.getJSON('/api/user/'+username+'/'+display+'/'+token, function(data) {
 				if(data.success == true) { 
 					LoLAlert.userData.apikey = data.APIKey;
+					LoLAlert.region = 'NA';
 
 					$("#settingsTwitchUsername").val(LoLAlert.userData.display_name);
 					LoLAlert.createSummonersList();
@@ -148,7 +149,7 @@ $(document).ready(function() {
 		{
 			$('.summoner').remove();
 			$("#summoners .loading-image").show();
-			$.getJSON('/api/summoners/'+LoLAlert.userData.name+'/'+LoLAlert.userData.apikey, function(data) {
+			$.getJSON('/api/summoners/'+LoLAlert.userData.name+'/'+LoLAlert.userData.apikey+'/'+LoLAlert.region, function(data) {
 				delete data['success'];
 				jQuery.each(data, function() {
 					$("#summonerTemplate").tmpl(this).prependTo("#summoners");
@@ -158,7 +159,7 @@ $(document).ready(function() {
 		},
 		addSummoner: function(name)
 		{
-			$.getJSON('/api/addSummoner/'+LoLAlert.userData.apikey+'/'+name, function(data) {
+			$.getJSON('/api/addSummoner/'+LoLAlert.userData.apikey+'/'+name+'/'+LoLAlert.region, function(data) {
 				if(data.success == false) 
 				{ 
 					if(data.error)
@@ -169,9 +170,9 @@ $(document).ready(function() {
 				LoLAlert.createSummonersList();
 			});
 		},
-		removeSummoner: function(name)
+		removeSummoner: function(id)
 		{
-			$.getJSON('/api/removeSummoner/'+LoLAlert.userData.apikey+'/'+name, function(data) {
+			$.getJSON('/api/removeSummoner/'+LoLAlert.userData.apikey+'/'+id+'/'+LoLAlert.region, function(data) {
 				if(data.success == false) 
 				{ 
 					if(data.error)
@@ -182,6 +183,11 @@ $(document).ready(function() {
 				LoLAlert.createSummonersList();
 			});
 		},
+		changeRegion: function(region)
+		{
+			LoLAlert.region = region;
+			LoLAlert.createSummonersList();
+		}
 	};
 	function ChangePanels(login)
 	{
@@ -218,6 +224,10 @@ $(document).ready(function() {
   		if(hash == 'support') LoLAlert.alert('success', 'Sent!', 'Your support message was sent. You should expect a reply to your Twitch.tv inbox within 24 hours.');
   		if(hash == 'donated') LoLAlert.alert('success', 'Thank You!', 'Your donation has been received. Thank you for supporting LoLAlerter!');
 	}
+	$(".newRegion").click(function() {
+		LoLAlert.changeRegion($(this).attr('region-code'));
+		$("#settingsLoLRegion").html($(this).text()+' <span class="caret"></span>');
+	});
 	$("#donateButton").click(function() {
 		$('#donateModal .modal-body').html('<iframe id="coinbase_inline_iframe_375f27cde5aa772c4f75ddf728f0b047" src="https://coinbase.com/inline_payments/375f27cde5aa772c4f75ddf728f0b047?c=LOLALERTERDONATION" style="width: 100%; height: 160px; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.25); overflow: hidden;" scrolling="no" allowtransparency="true" frameborder="0"></iframe>');
 		$("#donateModal").modal("show");
@@ -247,12 +257,13 @@ $(document).ready(function() {
 				$.getJSON('/api/partner/'+user.name, function(data) {
 					if(data.partner)
 					{
+						$(".alert").remove();
 						//Methods to be run after login
 						LoLAlert.updateTwitchUsername(user.display_name);
 
 						user.token = Twitch.getToken();
 						LoLAlert.userData = user;
-						LoLAlert.newUserData(user.name, status.token);
+						LoLAlert.newUserData(user.name, user.display_name, status.token);
 
 						ChangePanels(true);
 					}

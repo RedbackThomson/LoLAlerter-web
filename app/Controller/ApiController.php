@@ -1,7 +1,7 @@
 <?php
 class ApiController extends AppController {
-	public $uses = array('User', 'Summoner');
-	public function user($username, $token)
+	public $uses = array('User', 'Summoner', 'Alerter', 'Region');
+	public function user($username, $display, $token)
 	{
 		if(!isset($username))
 			throw new Exception("You didn't give me the username");
@@ -17,18 +17,25 @@ class ApiController extends AppController {
 			)
 		);
 		if(!isset($user['User']['APIKey']) || $user['User']['APIKey'] == "")
-			$json = $this->createUser($username, $token);
+			$json = $this->createUser($username, $display, $token)[0];
 		else
 		{
 			$json = Set::extract('/User/.', $user);
 			if($json[0]['TwitchToken'] != $token) 
 				$this->updateToken($username, $token);
+			$json = $json[0];
 		}
 
-        $this->renderJSON($json[0], true);
+		//Remove unnecessary json fields
+		$output = $json;
+		unset($output['Timestamp']);
+		unset($output['CreateDate']);
+		unset($output['LastNotice']);
+
+        $this->renderJSON($output, true);
 	}
 
-	public function addSummoner($apiKey, $summoner)
+	public function addSummoner($apiKey, $summoner, $region)
 	{
 		if(!isset($apiKey))
 			throw new Exception("You didn't give me the api key");
@@ -47,26 +54,34 @@ class ApiController extends AppController {
 		$summoner = trim($summoner);
 		try
 		{
-			$lolUserID = $this->getSummonerID($summoner);
+			$lolUserID = $this->getSummonerID($summoner, strtolower($region));
 		}
 		catch (Exception $x) {}
-		if(!isset($lolUserID))
-			$this->renderError($summoner . " could not be found on the NA servers");
+
+		//Get alerters on that region
+		$alerter = $this->getRegionAlerters($region);
+		//TODO: check if alerter is full
+
+		if(count($alerter) < 1)
+			$this->renderError("There are currently no alerters for that region");
+		else if(!isset($lolUserID))
+			$this->renderError($summoner . " could not be found on the ".$region." servers");
 		else if($this->summonerAlreadyExists($lolUserID))
 			$this->renderError($summoner . " is already registered under a different Twitch account");
 		else
 		{
+			$alerter = $alerter[0];
 			$this->Summoner->save(array('User'=> $user['ID'], 'SummonerName' => 
-				$summoner, 'SummonerID' => $lolUserID));
+				$summoner, 'SummonerID' => $lolUserID, 'Alerter' => $alerter['ID']));
 			$this->renderJSON(array(), true);
 		}
 	}
 
-	public function removeSummoner($apiKey, $value)
+	public function removeSummoner($apiKey, $summonerID, $region)
 	{
 		if(!isset($apiKey))
 			throw new Exception("You didn't give me the api key");
-		if(!isset($value))
+		if(!isset($summonerID))
 			throw new Exception("You didn't give me the value");
 
 		$user = $this->getAPIKeyUser($apiKey);
@@ -74,7 +89,7 @@ class ApiController extends AppController {
 			throw new Exception("Unknown API Key");
 
 		//Remove the current summoners
-		$this->Summoner->deleteAll(array('SummonerName' => $value));
+		$this->Summoner->deleteAll(array('SummonerID' => $summonerID, 'User' => $user['ID']));
 		$this->renderJSON(array(), true);
 	}
 
@@ -116,7 +131,7 @@ class ApiController extends AppController {
 		$this->renderJSON($return, true);
 	}
 
-	public function summoners($username, $apiKey)
+	public function summoners($username, $apiKey, $region)
 	{
 		if(!isset($username))
 			throw new Exception("You didn't give me the username");
@@ -129,7 +144,10 @@ class ApiController extends AppController {
 		if(strtolower($user['TwitchUsername']) != strtolower($username))
 			throw new Exception("That's not your api key");
 
-		$summoners = $this->Summoner->find('all', array('conditions' => array('User' => $user['ID'])));
+		//Get alerters for that region
+		$alerters = $this->array_column($this->getRegionAlerters($region), 'ID');
+
+		$summoners = $this->Summoner->find('all', array('conditions' => array('User' => $user['ID'], 'Alerter'=>$alerters)));
 		$summoners = Set::extract('/Summoner/.', $summoners);
 		$summonerIDs = implode(',', Set::extract('/SummonerID', $summoners));
 
@@ -139,8 +157,8 @@ class ApiController extends AppController {
 			return;
 		}
 
-		$info = $this->getSummonersInfoByID($summonerIDs);
-		$leagues = $this->getLeaguesByID($summonerIDs);
+		$info = $this->getSummonersInfoByID($summonerIDs, strtolower($region));
+		$leagues = $this->getLeaguesByID($summonerIDs, strtolower($region));
 
 		foreach($summoners as &$summoner)
 		{
@@ -158,7 +176,7 @@ class ApiController extends AppController {
 				$summoner['Division'] = 'Unranked';
 			}
 			if(!isset($summoner['Division'])) $summoner['Division'] = 'Unranked';
-			$summoner['Region'] = 'NA';
+			$summoner['Region'] = $region;
 		}
 
 		$this->renderJSON($summoners, true);
@@ -170,7 +188,7 @@ class ApiController extends AppController {
 			throw new Exception("You didn't give me the username");
 			
 		//Hard coded in Redback93
-		if($username == "Redback93")
+		if($username == "redback93")
 		{
 			$this->renderJSON(array('partner'=>'true'), true);
 			return;
@@ -199,17 +217,17 @@ class ApiController extends AppController {
 		}
 	}
 	
-	private function getSummonerID($username)
+	private function getSummonerID($username, $region)
 	{
-		$info = $this->getSummonerInfoByName($username);
+		$info = $this->getSummonerInfoByName($username, $region);
 		return $info['id'];
 	}
 
-	private function getSummonerInfoByName($username)
+	private function getSummonerInfoByName($username, $region)
 	{
 		$key = Configure::read('RiotAPI.Key');
 		$username = str_replace(' ','',strtolower($username));
-		$url = "http://na.api.pvp.net/api/lol/na/v1.4/summoner/by-name/$username?api_key=" .
+		$url = "http://$region.api.pvp.net/api/lol/$region/v1.4/summoner/by-name/$username?api_key=" .
 			$key;
 		try
 		{
@@ -220,10 +238,10 @@ class ApiController extends AppController {
 		return $json[$username];
 	}
 
-	private function getSummonersInfoByID($IDs)
+	private function getSummonersInfoByID($IDs, $region)
 	{
 		$key = Configure::read('RiotAPI.Key');
-		$url = "http://na.api.pvp.net/api/lol/na/v1.4/summoner/$IDs?api_key=" .
+		$url = "http://$region.api.pvp.net/api/lol/$region/v1.4/summoner/$IDs?api_key=" .
 		       $key;
 
 		try
@@ -235,10 +253,10 @@ class ApiController extends AppController {
 		return $json;
 	}
 
-	private function getLeaguesByID($IDs)
+	private function getLeaguesByID($IDs, $region)
 	{
 		$key = Configure::read('RiotAPI.Key');
-		$url = "http://na.api.pvp.net/api/lol/na/v2.5/league/by-summoner/$IDs?api_key=" .
+		$url = "http://$region.api.pvp.net/api/lol/$region/v2.5/league/by-summoner/$IDs?api_key=" .
 		       $key;
 		try
 		{
@@ -254,10 +272,12 @@ class ApiController extends AppController {
 		$update = $this->User->updateAll(array('TwitchToken' => "'$token'"), array('TwitchUsername' => "$username"));
 	}
 
-	private function createUser($username, $token)
+	private function createUser($username, $display, $token)
 	{
+		App::uses('String', 'Utility');
 		$this->User->deleteAll(array('TwitchUsername' => $username));
-		$newUser = array('APIKey' => uniqid('', true), 'TwitchUsername' => $username, 'TwitchToken' => $token);
+		$newUser = array('APIKey' => strtoupper(String::uuid()), 'TwitchUsername' => $username, 
+			'TwitchDisplay'=> $display,'TwitchToken' => $token, 'CreateDate'=>DboSource::expression('NOW()'));
 		$this->User->save($newUser);
 		return array($newUser);
 	}
@@ -281,6 +301,17 @@ class ApiController extends AppController {
 	{
 		$exists = $this->Summoner->find('count', array('conditions' => array('SummonerID' => $summonerID)));
 		return ($exists === 1);
+	}
+
+	private function getRegionAlerters($regionCode)
+	{
+		//Get regions
+		$region = $this->Region->find('first', array('conditions' => array('RegionCode' => $regionCode)));
+
+		//Get assosciated alerters
+		$alerters = $this->Alerter->find('all', array('conditions' => array('Region' => $region['Region']['ID'])));
+		$alerters = Set::extract('/Alerter/.', $alerters);
+		return $alerters;
 	}
 	
 	private function getURLContents($url)
@@ -311,4 +342,87 @@ class ApiController extends AppController {
 		$this->set(compact('json'));
         $this->render(JSON);	
 	}
+
+	private function array_column($input = null, $columnKey = null, $indexKey = null)
+    {
+        // Using func_get_args() in order to check for proper number of
+        // parameters and trigger errors exactly as the built-in array_column()
+        // does in PHP 5.5.
+        $argc = func_num_args();
+        $params = func_get_args();
+
+        if ($argc < 2) {
+            trigger_error("array_column() expects at least 2 parameters, {$argc} given", E_USER_WARNING);
+            return null;
+        }
+
+        if (!is_array($params[0])) {
+            trigger_error('array_column() expects parameter 1 to be array, ' . gettype($params[0]) . ' given', E_USER_WARNING);
+            return null;
+        }
+
+        if (!is_int($params[1])
+            && !is_float($params[1])
+            && !is_string($params[1])
+            && $params[1] !== null
+            && !(is_object($params[1]) && method_exists($params[1], '__toString'))
+        ) {
+            trigger_error('array_column(): The column key should be either a string or an integer', E_USER_WARNING);
+            return false;
+        }
+
+        if (isset($params[2])
+            && !is_int($params[2])
+            && !is_float($params[2])
+            && !is_string($params[2])
+            && !(is_object($params[2]) && method_exists($params[2], '__toString'))
+        ) {
+            trigger_error('array_column(): The index key should be either a string or an integer', E_USER_WARNING);
+            return false;
+        }
+
+        $paramsInput = $params[0];
+        $paramsColumnKey = ($params[1] !== null) ? (string) $params[1] : null;
+
+        $paramsIndexKey = null;
+        if (isset($params[2])) {
+            if (is_float($params[2]) || is_int($params[2])) {
+                $paramsIndexKey = (int) $params[2];
+            } else {
+                $paramsIndexKey = (string) $params[2];
+            }
+        }
+
+        $resultArray = array();
+
+        foreach ($paramsInput as $row) {
+
+            $key = $value = null;
+            $keySet = $valueSet = false;
+
+            if ($paramsIndexKey !== null && array_key_exists($paramsIndexKey, $row)) {
+                $keySet = true;
+                $key = (string) $row[$paramsIndexKey];
+            }
+
+            if ($paramsColumnKey === null) {
+                $valueSet = true;
+                $value = $row;
+            } elseif (is_array($row) && array_key_exists($paramsColumnKey, $row)) {
+                $valueSet = true;
+                $value = $row[$paramsColumnKey];
+            }
+
+            if ($valueSet) {
+                if ($keySet) {
+                    $resultArray[$key] = $value;
+                } else {
+                    $resultArray[] = $value;
+                }
+            }
+
+        }
+
+        return $resultArray;
+    }
 }
