@@ -77,7 +77,7 @@ class IpnController extends AppController {
 		$listener = new IpnListener();
 
 		//Tell the listener to use the sandbox, for the debugging
-		$listener->use_sandbox = true;
+		//$listener->use_sandbox = true;
 
 		try {
 		    /*$listener->requirePostMethod();
