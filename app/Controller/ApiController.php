@@ -1,6 +1,6 @@
 <?php
 class ApiController extends AppController {
-	public $uses = array('User', 'Summoner', 'Alerter', 'Region');
+	public $uses = array('User', 'Summoner', 'Alerter', 'Region', 'SubscriptionPayment', 'Setting');
 	public function user($username, $display, $token)
 	{
 		if(!isset($username))
@@ -217,6 +217,46 @@ class ApiController extends AppController {
 		}
 	}
 	
+	public function subscription($username, $apiKey)
+	{
+		if(!isset($username))
+			throw new Exception("You didn't give me the username");
+		if(!isset($apiKey))
+			throw new Exception("You didn't give me the api key");
+
+		$user = $this->getAPIKeyUser($apiKey);
+		if(!isset($user['ID']))
+			throw new Exception("Unknown api key");
+		if(strtolower($user['TwitchUsername']) != strtolower($username))
+			throw new Exception("That's not your api key");
+
+		//Load user subscriptions
+		$payments = $this->SubscriptionPayment->find('all', 
+			array('conditions' => array('User' => $user['ID']),
+				'limit' => 50,
+				'order' => array('Timestamp DESC')));
+		$payments = Set::extract('/SubscriptionPayment/.', $payments);
+
+		//Load into a user-friendly amount of information
+		$output = array();
+		foreach($payments as $payment)
+			$output[] = array('Transaction' => $payment['TXNID'], 'Amount' => $payment['GrossAmount'], 'Timestamp' => $payment['PaymentDate']);
+
+		App::uses('ItemEncoder', 'Lib/Encoder');
+		//Get the settings
+		$email = $this->Setting->find('first', array('conditions' => array('Key' => 'PayPalEmail')));
+		$email = $email['Setting']['Value'];
+
+		$subMonthly = $this->Setting->find('first', array('conditions' => array('Key' => 'SubscriptionMonthly')));
+		$subMonthly = $subMonthly['Setting']['Value'];		
+
+		$vars = array('payments' => $output, 'active' => $user['Active'], 
+			'item' => ItemEncoder::EncodeItem($user['TwitchUsername']), 'display' => $user['TwitchDisplay'],
+			'email' => $email, 'monthly' => $subMonthly);
+		$this->set($vars);
+		$this->render('/Subscription/index', 'empty');
+	}
+
 	private function getSummonerID($username, $region)
 	{
 		$info = $this->getSummonerInfoByName($username, $region);

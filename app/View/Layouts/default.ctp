@@ -66,6 +66,9 @@ footer {
 								<li>
 									<a href="#" data-toggle="modal" data-target=".support-modal">Support</a>
 								</li>
+								<li>
+									<a id="subscribeButton" href="#" data-toggle="modal" data-target=".subscribe-modal">Subscribe</a>
+								</li>
 							</ul>
 							<p class="navbar-text navbar-right loggedIn" id="navUsername"></p>
 							<ul class="nav navbar-nav navbar-right loggedOut" style="margin-top: 17px; display: list-item;">
@@ -231,6 +234,9 @@ $(document).ready(function() {
 	$("#donateButton").click(function() {
 		$('#donateModal .modal-body').html('<iframe id="coinbase_inline_iframe_375f27cde5aa772c4f75ddf728f0b047" src="https://coinbase.com/inline_payments/375f27cde5aa772c4f75ddf728f0b047?c=LOLALERTERDONATION" style="width: 100%; height: 160px; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.25); overflow: hidden;" scrolling="no" allowtransparency="true" frameborder="0"></iframe>');
 		$("#donateModal").modal("show");
+	});
+	$("#subscribeButton").click(function() {
+		$(".subscribe-modal .modal-body").load("/api/subscription/"+LoLAlert.userData.name+'/'+LoLAlert.userData.apikey);
 	});
 	Twitch.init({clientId: '<?php echo Configure::read('LoLAlert.ClientID'); ?>'}, function(error, status) {
 		LoLAlert.alert('info', 'We\'ve moved!', 'LoLAlerter has moved to the more permanent location of <a href="http://lolalerter.com">http://lolalerter.com</a>');
