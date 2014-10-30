@@ -116,12 +116,12 @@ define("JSON", '/Elements/json');
  */
  
   /* Development settings */
-  	Configure::write('LoLAlert.Redirect', 'http://alertertest.softcode.co/');
+  	/*Configure::write('LoLAlert.Redirect', 'http://alertertest.reddev.me/');
   	Configure::write('LoLAlert.ClientID', 'ah5wgbq1ve6125xm737wo5dmgmshpxy');
-  	Configure::write('LoLAlert.ClientSecret', 'bohospu10bbgcgo6827whrffrdx46b5');
+  	Configure::write('LoLAlert.ClientSecret', 'bohospu10bbgcgo6827whrffrdx46b5');*/
   
-	/*Configure::write('LoLAlert.Redirect', 'http://lolalerter.com/');
+	Configure::write('LoLAlert.Redirect', 'http://lolalerter.com/');
 	Configure::write('LoLAlert.ClientID', '6fnqklj9p5y1im0xnjlj3s2hq1abuxo');
-	Configure::write('LoLAlert.ClientSecret', 'nqor34sf0vmpl4ypcuue94oum9dzmic');*/
+	Configure::write('LoLAlert.ClientSecret', 'nqor34sf0vmpl4ypcuue94oum9dzmic');
 
 	Configure::write('RiotAPI.Key', 'cd1f1602-f35e-40d5-81a1-2bedf533f802');
