@@ -255,7 +255,6 @@ $(document).ready(function() {
 		$(".subscribe-modal .modal-body").load("/api/subscription/"+LoLAlert.userData.name+'/'+LoLAlert.userData.apikey);
 	});
 	Twitch.init({clientId: '<?php echo Configure::read('LoLAlert.ClientID'); ?>'}, function(error, status) {
-		LoLAlert.alert('info', 'We\'ve moved!', 'LoLAlerter has moved to the more permanent location of <a href="http://lolalerter.com">http://lolalerter.com</a>');
 		$('.twitch-connect').click(function() {
 		  Twitch.login({
 		  	redirect_uri: "<?php echo Configure::read('LoLAlert.Redirect'); ?>",
