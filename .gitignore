@@ -32,3 +32,5 @@ alerter/tmp_alerter.pid
 alerter/settings.dev.json
 alerter/settings.json
 alerter/settings.prod.json
+app/Config/bootstrap.php
+app/Config/core.php
