@@ -70,6 +70,26 @@
 					<dd>Start Streaming!</dd>
 				</dl>
 			</div>
+			<h2>Twitch Bot</h2>
+			<div class="well">
+				<p>Commands for the Twitch chat bot</p>
+				<dl class="dl-horizontal" style="margin-bottom: 0px">
+					<dt>!summoner</dt>
+					<dd>Outputs the current summoner account</dt>
+					<dt>!runes</dt>
+					<dd>Outputs a summary of the current rune page</dt>
+					<dt>!champion</dt>
+					<dd>Outputs the current champion (if in-game)</dt>
+					<dt>!league / !rank</dt>
+					<dd>Outputs the ranked stats for the current summoner</dt>
+					<dt>!last</dt>
+					<dd>Outputs the last subscriber</dt>
+					<dt>!lolking</dt>
+					<dd>Outputs the LoLKing profile of the current summoner</dt>
+					<dt>!lolnexus</dt>
+					<dd>Outputs the LoLNexus link for the current game</dt>
+				</dl>
+			</div>
 			<h2>Summoners</h2>
 			<div id="newSummoner"><div style="width: 25%;float: left;margin-right: 5px;"><input type="text" class="form-control" placeholder="Summoner Name" /></div><input type="button" class="btn btn-success" value="Add" /></div>
 			<div class="well" id="summoners">
