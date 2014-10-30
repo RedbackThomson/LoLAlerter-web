@@ -55,7 +55,21 @@
 							<?php endforeach;?>
 						</ul>
 					</div>
+					<div class="form-group">
+						<label for="subscriptionStatus">Subscription Status</label><br/>
+						<h4><span class="label label-success" id="subscriptionStatus">Subscribed</span></h4>
+					</div>
 				</form>
+			</div>
+			<h2>Notifications</h2>
+			<div class="well">
+				<div class="form-group">
+					<label for="settingsInGameMessage">In Game Message (<abbr title="Substitute the user's name with %s">?</abbr>)</label>
+					<input type="text" class="form-control input-sm" id="settingsInGameMessage">
+					<label for="settingsInChatMessage">In Chat Message (<abbr title="Substitute the user's name with %s">?</abbr>)</label>
+					<input type="text" class="form-control input-sm" id="settingsInChatMessage">
+					<input class="btn btn-success" style="margin-top: 5px;" type="button" value="Update" id="messagesUpdate"></input>
+				</div>
 			</div>
 		</div>
 		<div class="col-md-8">

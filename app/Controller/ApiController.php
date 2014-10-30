@@ -1,6 +1,6 @@
 <?php
 class ApiController extends AppController {
-	public $uses = array('User', 'Summoner', 'Alerter', 'Region', 'SubscriptionPayment', 'Setting');
+	public $uses = array('User', 'Summoner', 'Alerter', 'Region', 'SubscriptionPayment', 'Setting', 'Message');
 	public function user($username, $display, $token)
 	{
 		if(!isset($username))
@@ -31,6 +31,20 @@ class ApiController extends AppController {
 		unset($output['Timestamp']);
 		unset($output['CreateDate']);
 		unset($output['LastNotice']);
+
+		//Load messages
+		$messages = $this->Message->find('first', array('conditions' => array('User' => $user['User']['ID'])));
+		if(empty($messages))
+		{
+			$output['InGameMessage'] = '%s has just subscribed!';
+			$output['InChatMessage'] = 'Thanks for subscribing, %s!';
+		}
+		else
+		{
+			$messageItem = $messages['Message'];
+			$output['InGameMessage'] = (empty($messageItem['InGame']) ? '%s has just subscribed!' : $messageItem['InGame']);
+			$output['InChatMessage'] = (empty($messageItem['InChat']) ? 'Thanks for subscribing, %s!' : $messageItem['InChat']);
+		}
 
         $this->renderJSON($output, true);
 	}
@@ -255,6 +269,30 @@ class ApiController extends AppController {
 			'email' => $email, 'monthly' => $subMonthly);
 		$this->set($vars);
 		$this->render('/Subscription/index', 'empty');
+	}
+
+	public function messages($username, $apiKey)
+	{
+		if(!isset($username))
+			throw new Exception("You didn't give me the username");
+		if(!isset($apiKey))
+			throw new Exception("You didn't give me the api key");
+
+		$user = $this->getAPIKeyUser($apiKey);
+		if(!isset($user['ID']))
+			throw new Exception("Unknown api key");
+		if(strtolower($user['TwitchUsername']) != strtolower($username))
+			throw new Exception("That's not your api key");
+
+		$inGame = $this->request->data('inGame');
+		$inChat = $this->request->data('inChat');
+
+		$data = array('User' => $user['ID'], 'InGame' => $inGame, 'InChat' => $inChat);
+
+		$this->Message->delete($user['ID']);
+		$this->Message->save($data);
+
+		$this->renderJSON(array(), true);
 	}
 
 	private function getSummonerID($username, $region)

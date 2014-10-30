@@ -138,6 +138,15 @@ $(document).ready(function() {
 					LoLAlert.region = 'NA';
 
 					$("#settingsTwitchUsername").val(LoLAlert.userData.display_name);
+					if(data.Active == "0")
+					{
+						$("#subscriptionStatus").text("Not Subscribed");
+						$("#subscriptionStatus").removeClass("label-success");
+						$("#subscriptionStatus").addClass("label-danger");
+					}
+
+					$("#settingsInGameMessage").val(data.InGameMessage);
+					$("#settingsInChatMessage").val(data.InChatMessage);
 					LoLAlert.createSummonersList();
 				}
 				if(callback) {
@@ -210,6 +219,13 @@ $(document).ready(function() {
 	    var name = $.trim($('#supportForm #inputUsername').val());
 	    var body = $.trim($('#supportForm #inputBody').val());
 	    return !(name == '' || body == '');
+	});
+	$("#messagesUpdate").click(function() {
+		$.post('/api/messages/'+LoLAlert.userData.name+'/'+LoLAlert.userData.apikey, 
+			{'inGame': $("#settingsInGameMessage").val(),'inChat': $("#settingsInChatMessage").val()},
+		function (data){
+			LoLAlert.alert('success', 'Updated', 'Messages updated!');
+		});
 	});
 	$('#newSummoner input[type="button"]').click(function() {
 		LoLAlert.addSummoner($('#newSummoner input[type="text"]').val());
