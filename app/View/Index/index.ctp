@@ -87,6 +87,7 @@
 			<h2>Twitch Bot</h2>
 			<div class="well">
 				<p>Commands for the Twitch chat bot</p>
+				<p>You must moderate 'Redbackbot' to enable it</p>
 				<dl class="dl-horizontal" style="margin-bottom: 0px">
 					<dt>!summoner</dt>
 					<dd>Outputs the current summoner account</dt>
