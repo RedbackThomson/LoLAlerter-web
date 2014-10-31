@@ -73,37 +73,73 @@
 			</div>
 		</div>
 		<div class="col-md-8">
-			<h2>Set Up</h2>
-			<div class="well">
-				<dl class="dl-horizontal" style="margin-bottom: 0px;">
-					<dt>Step 1</dt>
-					<dd>Add summoners using the box below</dd>
-					<dt>Step 2</dt>
-					<dd>On each of the accounts, add the bot (LoLAlerter) to your friends list</dd>
-					<dt>Step 3</dt>
-					<dd>Start Streaming!</dd>
-				</dl>
-			</div>
-			<h2>Twitch Bot</h2>
-			<div class="well">
-				<p>Commands for the Twitch chat bot</p>
-				<p>You must moderate 'Redbackbot' to enable it</p>
-				<dl class="dl-horizontal" style="margin-bottom: 0px">
-					<dt>!summoner</dt>
-					<dd>Outputs the current summoner account</dt>
-					<dt>!runes</dt>
-					<dd>Outputs a summary of the current rune page</dt>
-					<dt>!champion</dt>
-					<dd>Outputs the current champion (if in-game)</dt>
-					<dt>!league / !rank</dt>
-					<dd>Outputs the ranked stats for the current summoner</dt>
-					<dt>!last</dt>
-					<dd>Outputs the last subscriber</dt>
-					<dt>!lolking</dt>
-					<dd>Outputs the LoLKing profile of the current summoner</dt>
-					<dt>!lolnexus</dt>
-					<dd>Outputs the LoLNexus link for the current game</dt>
-				</dl>
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+				<div class="panel panel-default">
+					<div class="panel-heading" role="tab" id="headingOne">
+						<h4 class="panel-title">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+								Set Up
+							</a>
+						</h4>
+					</div>
+					<div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+						<div class="panel-body">
+							<dl class="dl-horizontal" style="margin-bottom: 0px;">
+								<dt>Step 1</dt>
+								<dd>Add summoners using the box below</dd>
+								<dt>Step 2</dt>
+								<dd>On each of the accounts, add the bot (LoLAlerter) to your friends list</dd>
+								<dt>Step 3</dt>
+								<dd>Start Streaming!</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading" role="tab" id="headingTwo">
+						<h4 class="panel-title">
+							<a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+								Twitch Bot
+							</a>
+						</h4>
+					</div>
+					<div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+						<div class="panel-body">
+							<p>Commands for the Twitch chat bot</p>
+							<p>You must moderate 'Redbackbot' to enable it</p>
+							<dl class="dl-horizontal" style="margin-bottom: 0px">
+								<dt>!summoner</dt>
+								<dd>Outputs the current summoner account</dt>
+								<dt>!runes</dt>
+								<dd>Outputs a summary of the current rune page</dt>
+								<dt>!champion</dt>
+								<dd>Outputs the current champion (if in-game)</dt>
+								<dt>!league / !rank</dt>
+								<dd>Outputs the ranked stats for the current summoner</dt>
+								<dt>!last</dt>
+								<dd>Outputs the last subscriber</dt>
+								<dt>!lolking</dt>
+								<dd>Outputs the LoLKing profile of the current summoner</dt>
+								<dt>!lolnexus</dt>
+								<dd>Outputs the LoLNexus link for the current game</dt>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<div class="panel panel-default">
+					<div class="panel-heading" role="tab" id="headingThree">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+								Subscriber Statistics
+							</a>
+						</h4>
+					</div>
+					<div id="collapseThree" class="panel-collapse in" role="tabpanel" aria-labelledby="headingThree">
+						<div class="panel-body">
+							Coming Soon!
+						</div>
+					</div>
+				</div>
 			</div>
 			<h2>Summoners</h2>
 			<div id="newSummoner"><div style="width: 25%;float: left;margin-right: 5px;"><input type="text" class="form-control" placeholder="Summoner Name" /></div><input type="button" class="btn btn-success" value="Add" /></div>

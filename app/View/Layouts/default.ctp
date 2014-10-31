@@ -279,7 +279,7 @@ $(document).ready(function() {
 					if(data.partner)
 					{
 						$(".alert").remove();
-						LoLAlert.alert('info', 'New Payment Plan', 'Since LoLAlerter has not been able to sustain itself, a new payment plan is being put in place. In order to continue to use the bot, there will be a monthly subscription of USD$15. Use of LoLAlerter will remain free until November 1.');
+						LoLAlert.alert('info', 'New Payment Plan', 'Since LoLAlerter has not been able to sustain itself, a new payment plan is being put in place. In order to continue to use the bot, there will be a monthly subscription of USD$5. Use of LoLAlerter will remain free until November 1.');
 						//Methods to be run after login
 						LoLAlert.updateTwitchUsername(user.display_name);
 
