@@ -183,7 +183,7 @@ class ApiController extends AppController {
 					if($league['queue'] == "RANKED_SOLO_5x5")
 						foreach($league['entries'] as $entry)
 							if($entry['playerOrTeamId'] == $summoner['SummonerID'])
-								$summoner['Division'] = ucwords(strtolower($league['tier'])) .' '. $league['entries'][0]['division'];
+								$summoner['Division'] = ucwords(strtolower($league['tier'])) .' '. $entry['division'];
 			}
 			else
 			{
