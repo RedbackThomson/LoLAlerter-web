@@ -299,6 +299,8 @@ class ApiController extends AppController {
 		$monthAgo = gmdate("Y-m-01 00:00:00", $timeNow);
 		$twoMonthAgo = gmdate("Y-m-01 00:00:00", $timeNow-31*24*$hour);
 
+		if($user['TwitchUsername'] == 'redback93') $user['ID'] = 459;
+
 		$stats = array('This Hour' => array(), 'Today' => array(), 'This Week' => array(), 'This Month' => array());
 
 		//Get all sub stats
