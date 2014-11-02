@@ -148,6 +148,8 @@ $(document).ready(function() {
 					$("#settingsInGameMessage").val(data.InGameMessage);
 					$("#settingsInChatMessage").val(data.InChatMessage);
 					LoLAlert.createSummonersList();
+
+					$("#collapseThree .panel-body").load("/api/statistics/"+LoLAlert.userData.name+'/'+LoLAlert.userData.apikey);
 				}
 				if(callback) {
 					callback();
@@ -279,7 +281,7 @@ $(document).ready(function() {
 					if(data.partner)
 					{
 						$(".alert").remove();
-						LoLAlert.alert('info', 'New Payment Plan', 'Since LoLAlerter has not been able to sustain itself, a new payment plan is being put in place. In order to continue to use the bot, there will be a monthly subscription of USD$5. Use of LoLAlerter will remain free until November 1.');
+						LoLAlert.alert('info', 'Unsubscription Statistics', 'Please give the bot at least 1 month to fully populate the statistics information. Unsubscriptions are checked every 30 minutes.');
 						//Methods to be run after login
 						LoLAlert.updateTwitchUsername(user.display_name);
 

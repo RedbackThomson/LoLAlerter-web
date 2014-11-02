@@ -1,6 +1,6 @@
 <?php
 class ApiController extends AppController {
-	public $uses = array('User', 'Summoner', 'Alerter', 'Region', 'SubscriptionPayment', 'Setting', 'Message');
+	public $uses = array('User', 'Summoner', 'Alerter', 'Region', 'SubscriptionPayment', 'Setting', 'Message', 'Subscriber');
 	public function user($username, $display, $token)
 	{
 		if(!isset($username))
@@ -269,6 +269,70 @@ class ApiController extends AppController {
 			'email' => $email, 'monthly' => $subMonthly);
 		$this->set($vars);
 		$this->render('/Subscription/index', 'empty');
+	}
+
+	public function statistics($username, $apiKey)
+	{
+		if(!isset($username))
+			throw new Exception("You didn't give me the username");
+		if(!isset($apiKey))
+			throw new Exception("You didn't give me the api key");
+
+		$user = $this->getAPIKeyUser($apiKey);
+		if(!isset($user['ID']))
+			throw new Exception("Unknown api key");
+		if(strtolower($user['TwitchUsername']) != strtolower($username))
+			throw new Exception("That's not your api key");
+
+		$timeNow = time();
+		$hour = 60*60;
+
+		$hourAgo = gmdate("Y-m-d H:00:00", $timeNow);
+		$twoHourAgo = gmdate("Y-m-d H:00:00", $timeNow-$hour);
+
+		$todayAgo = gmdate("Y-m-d 00:00:00", $timeNow);
+		$twoDayAgo = gmdate("Y-m-d 00:00:00", $timeNow-24*$hour);
+
+		$weekAgo = gmdate("Y-m-d 00:00:00", strtotime('last monday +1 days'));
+		$twoWeekAgo = gmdate("Y-m-d 00:00:00", strtotime('last monday -6 days'));
+
+		$monthAgo = gmdate("Y-m-01 00:00:00", $timeNow);
+		$twoMonthAgo = gmdate("Y-m-01 00:00:00", $timeNow-31*24*$hour);
+
+		$stats = array('This Hour' => array(), 'Today' => array(), 'This Week' => array(), 'This Month' => array());
+
+		//Get all sub stats
+		$stats['This Hour']['now'] = $this->Subscriber->find('count', array('conditions' => array('AddDate > ' => $hourAgo, 'User' => $user['ID'])));
+		$stats['This Hour']['two'] = $this->Subscriber->find('count', array('conditions' => array("AddDate BETWEEN '$twoHourAgo' AND '$hourAgo'", 'User' => $user['ID'])));
+		$stats['This Hour']['desc'] = 'Compared to Last Hour';
+
+		$stats['Today']['now'] = $this->Subscriber->find('count', array('conditions' => array('AddDate > ' => $todayAgo, 'User' => $user['ID'])));
+		$stats['Today']['two'] = $this->Subscriber->find('count', array('conditions' => array("AddDate BETWEEN '$twoDayAgo' AND '$todayAgo'", 'User' => $user['ID'])));
+		$stats['Today']['desc'] = 'Compared to Yesterday';
+
+		$stats['This Week']['now'] = $this->Subscriber->find('count', array('conditions' => array('AddDate > ' => $weekAgo, 'User' => $user['ID'])));
+		$stats['This Week']['two'] = $this->Subscriber->find('count', array('conditions' => array("AddDate BETWEEN '$twoWeekAgo' AND '$weekAgo'", 'User' => $user['ID'])));
+		$stats['This Week']['desc'] = 'Compared to Last Week';
+
+		$stats['This Month']['now'] = $this->Subscriber->find('count', array('conditions' => array('AddDate > ' => $monthAgo, 'User' => $user['ID'])));
+		$stats['This Month']['two'] = $this->Subscriber->find('count', array('conditions' => array("AddDate BETWEEN '$twoMonthAgo' AND '$monthAgo'", 'User' => $user['ID'])));
+		$stats['This Month']['desc'] = 'Compared to Last Month';
+
+		//Get all unsub stats
+		$stats['This Hour']['unnow'] = $this->Subscriber->find('count', array('conditions' => array('UnsubDate > ' => $hourAgo, 'User' => $user['ID'])));
+		$stats['This Hour']['untwo'] = $this->Subscriber->find('count', array('conditions' => array("UnsubDate BETWEEN '$twoHourAgo' AND '$hourAgo'", 'User' => $user['ID'])));
+
+		$stats['Today']['unnow'] = $this->Subscriber->find('count', array('conditions' => array('UnsubDate > ' => $todayAgo, 'User' => $user['ID'])));
+		$stats['Today']['untwo'] = $this->Subscriber->find('count', array('conditions' => array("UnsubDate BETWEEN '$twoDayAgo' AND '$todayAgo'", 'User' => $user['ID'])));
+
+		$stats['This Week']['unnow'] = $this->Subscriber->find('count', array('conditions' => array('UnsubDate > ' => $weekAgo, 'User' => $user['ID'])));
+		$stats['This Week']['untwo'] = $this->Subscriber->find('count', array('conditions' => array("UnsubDate BETWEEN '$twoWeekAgo' AND '$weekAgo'", 'User' => $user['ID'])));
+
+		$stats['This Month']['unnow'] = $this->Subscriber->find('count', array('conditions' => array('UnsubDate > ' => $monthAgo, 'User' => $user['ID'])));
+		$stats['This Month']['untwo'] = $this->Subscriber->find('count', array('conditions' => array("UnsubDate BETWEEN '$twoMonthAgo' AND '$monthAgo'", 'User' => $user['ID'])));
+
+		$this->set(array('stats'=>$stats));
+		$this->render('/Statistics/index', 'empty');
 	}
 
 	public function messages($username, $apiKey)

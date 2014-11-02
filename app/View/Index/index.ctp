@@ -20,7 +20,7 @@
 			<h2>Statistics</h2>
 			<div class="well">
 				<dl class="dl-horizontal" style="margin-bottom: 0px;">
-					<dt>Total Subscribed<small><abbr title="Since April 17, 2014">(?)</abbr></small></dt>
+					<dt>Total Subscribed <small><abbr title="Since April 17, 2014">(?)</abbr></small></dt>
 					<dd><?php echo($totalSubscribed); ?></dd>
 					<dt>Online Users</dt>
 					<dd><?php echo($onlineUsers); ?></dd>
@@ -136,7 +136,7 @@
 					</div>
 					<div id="collapseThree" class="panel-collapse in" role="tabpanel" aria-labelledby="headingThree">
 						<div class="panel-body">
-							Coming Soon!
+							<div class="loading-image"></div>
 						</div>
 					</div>
 				</div>
