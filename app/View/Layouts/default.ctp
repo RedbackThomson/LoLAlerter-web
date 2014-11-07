@@ -143,6 +143,9 @@ $(document).ready(function() {
 						$("#subscriptionStatus").text("Not Subscribed");
 						$("#subscriptionStatus").removeClass("label-success");
 						$("#subscriptionStatus").addClass("label-danger");
+
+						$("#newSummoner input").attr("disabled", "disabled");
+						$("#newSummoner input[type='text']").val("You must first subscribe");
 					}
 
 					$("#settingsInGameMessage").val(data.InGameMessage);
