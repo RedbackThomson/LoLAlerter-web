@@ -1,5 +1,4 @@
-<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-<table class="table table-hover" style="font-family: 'Lato', sans-serif;">
+<table class="table table-hover">
 	<tr>
 		<th></th>
 		<th colspan="2">New Subs</th>
