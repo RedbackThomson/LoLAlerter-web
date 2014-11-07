@@ -28,7 +28,7 @@
 	</title>
 	<?php 
 		echo $this->Html->meta('icon', '/favicon.png'); 
-		echo $this->Html->css('bootstrap.min');
+		echo $this->Html->css('bootstrap');
 		echo $this->Html->css('lolalerter');
 	?>
 	<meta name="Description" content="A League of Legends in game chat bot which will alert the Twitch.tv user when a new user subscribes. The bot runs without any interaction once it is set up." />
